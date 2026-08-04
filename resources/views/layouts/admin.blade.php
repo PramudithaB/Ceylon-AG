@@ -13,6 +13,7 @@
 
         <!-- Scripts & Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @stack('styles')
     </head>
     <body class="font-sans antialiased h-full text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950" x-data="{ sidebarOpen: false }">
         <div class="min-h-screen flex flex-col lg:flex-row bg-slate-50 dark:bg-slate-950">
@@ -54,5 +55,7 @@
                 <x-admin.footer />
             </div>
         </div>
+
+        @stack('scripts')
     </body>
 </html>

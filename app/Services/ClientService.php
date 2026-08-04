@@ -97,7 +97,11 @@ class ClientService
         $updated = $this->clientRepository->updateStatus($user, User::STATUS_APPROVED);
 
         if ($updated) {
-            $user->notify(new \App\Notifications\ClientApprovedNotification($user, 'approved'));
+            try {
+                $user->notify(new \App\Notifications\ClientApprovedNotification($user, 'approved'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed sending approval notification to user {$user->id}: " . $e->getMessage(), ['exception' => $e]);
+            }
         }
 
         return $updated;
@@ -111,7 +115,11 @@ class ClientService
         $updated = $this->clientRepository->updateStatus($user, User::STATUS_REJECTED);
 
         if ($updated) {
-            $user->notify(new \App\Notifications\ClientApprovedNotification($user, 'rejected'));
+            try {
+                $user->notify(new \App\Notifications\ClientApprovedNotification($user, 'rejected'));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed sending rejection notification to user {$user->id}: " . $e->getMessage(), ['exception' => $e]);
+            }
         }
 
         return $updated;

@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ProductAssignmentSeeder::class,
             ClientSaleSeeder::class,
             PaymentSeeder::class,
+            CompanySettingSeeder::class,
         ]);
     }
 }

@@ -25,6 +25,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public const STATUS_REJECTED = 'rejected';
 
     /**
+     * Role Constants
+     */
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_CLIENT = 'client';
+    public const ROLE_REF = 'ref';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -42,6 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'province',
         'password',
         'status',
+        'role',
+        'ref_id',
         'profile_photo_path',
     ];
 
@@ -132,6 +141,40 @@ class User extends Authenticatable implements MustVerifyEmail
         // Return ui-avatars placeholder fallback
         $name = urlencode($this->full_name);
         return "https://ui-avatars.com/api/?name={$name}&color=10b981&background=020617";
+    }
+
+    /**
+     * Role Helper Methods
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isClient(): bool
+    {
+        return $this->role === self::ROLE_CLIENT;
+    }
+
+    public function isRef(): bool
+    {
+        return $this->role === self::ROLE_REF;
+    }
+
+    /**
+     * Assigned Clients relationship for Ref users.
+     */
+    public function assignedClients()
+    {
+        return $this->hasMany(User::class, 'ref_id');
+    }
+
+    /**
+     * Sales Rep relationship for Client users.
+     */
+    public function salesRep()
+    {
+        return $this->belongsTo(User::class, 'ref_id');
     }
 
     /**

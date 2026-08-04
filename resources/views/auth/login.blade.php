@@ -7,7 +7,9 @@
         <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-green-100 p-8">
 
             <!-- Logo -->
-
+            <div class="flex justify-center mb-6">
+                <img src="{{ asset('images/logo.png') }}" alt="Ceylon Agro Marketing" class="w-28 h-28 object-contain">
+            </div>
 
             <!-- Heading -->
             <div class="text-center mb-8">

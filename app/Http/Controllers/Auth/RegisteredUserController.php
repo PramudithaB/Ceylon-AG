@@ -83,16 +83,21 @@ class RegisteredUserController extends Controller
             'province' => $request->province,
             'password' => Hash::make($request->password),
             'status' => User::STATUS_PENDING,
+            'role' => User::ROLE_CLIENT,
         ]);
 
         // Assign Client role
         $user->assignRole('Client');
 
-        // Dispatch Registered event (Triggers Email Verification Mail)
-        event(new Registered($user));
+        try {
+            // Dispatch Registered event (Triggers Email Verification Mail)
+            event(new Registered($user));
 
-        // Dispatch Welcome Notification
-        $user->notify(new \App\Notifications\ClientRegisteredNotification($user));
+            // Dispatch Welcome Notification
+            $user->notify(new \App\Notifications\ClientRegisteredNotification($user));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed sending registration emails to {$user->email}: " . $e->getMessage(), ['exception' => $e]);
+        }
 
         // Redirect to registration pending approval notice page (DO NOT AUTO-LOGIN)
         return redirect()->route('register.success')->with('registered_email', $user->email);

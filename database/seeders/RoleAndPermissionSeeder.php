@@ -35,11 +35,13 @@ class RoleAndPermissionSeeder extends Seeder
         $superAdminRole = Role::findOrCreate('Super Admin', 'web');
         $adminRole = Role::findOrCreate('Admin', 'web');
         $clientRole = Role::findOrCreate('Client', 'web');
+        $refRole = Role::findOrCreate('Ref', 'web');
 
         // Give permissions to roles
         $superAdminRole->givePermissionTo(Permission::all());
         $adminRole->givePermissionTo(['view-admin-dashboard', 'approve-clients', 'edit-profile']);
         $clientRole->givePermissionTo(['edit-profile']);
+        $refRole->givePermissionTo(['edit-profile']);
 
         // Create Default Super Admin User
         $superAdmin = User::firstOrCreate(
@@ -56,10 +58,33 @@ class RoleAndPermissionSeeder extends Seeder
                 'province' => 'Western',
                 'password' => Hash::make('password'),
                 'status' => User::STATUS_APPROVED,
+                'role' => User::ROLE_ADMIN,
                 'email_verified_at' => now(),
             ]
         );
-
+        $superAdmin->update(['role' => User::ROLE_ADMIN]);
         $superAdmin->assignRole($superAdminRole);
+
+        // Create Default Ref User (Sales Representative)
+        $refUser = User::firstOrCreate(
+            ['email' => 'ref@ceylonag.com'],
+            [
+                'name' => 'Sales Representative',
+                'first_name' => 'Sales',
+                'last_name' => 'Representative',
+                'business_name' => 'Ceylon AG Sales',
+                'nic' => '199200000000',
+                'phone' => '+94771112233',
+                'address' => 'Colombo 03',
+                'district' => 'Colombo',
+                'province' => 'Western',
+                'password' => Hash::make('password'),
+                'status' => User::STATUS_APPROVED,
+                'role' => User::ROLE_REF,
+                'email_verified_at' => now(),
+            ]
+        );
+        $refUser->update(['role' => User::ROLE_REF]);
+        $refUser->assignRole($refRole);
     }
 }

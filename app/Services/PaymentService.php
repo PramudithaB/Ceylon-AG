@@ -55,8 +55,15 @@ class PaymentService
             ]);
 
             // Notify System Admins via Notification
-            $admins = User::role(['Super Admin', 'Admin'])->get();
-            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\PaymentSubmittedNotification($payment));
+            try {
+                $admins = User::where('role', User::ROLE_ADMIN)->get();
+                if ($admins->isEmpty()) {
+                    $admins = User::role(['Super Admin', 'Admin'])->get();
+                }
+                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\PaymentSubmittedNotification($payment));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed sending payment submitted notification for payment #{$payment->payment_number}: " . $e->getMessage(), ['exception' => $e]);
+            }
 
             return $payment;
         });
@@ -76,7 +83,11 @@ class PaymentService
 
             // Send notification to client
             if ($updated->client) {
-                $updated->client->notify(new \App\Notifications\PaymentApprovedNotification($updated));
+                try {
+                    $updated->client->notify(new \App\Notifications\PaymentApprovedNotification($updated));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed sending payment approved notification to client {$updated->client->id}: " . $e->getMessage(), ['exception' => $e]);
+                }
             }
 
             return $updated;
@@ -98,7 +109,11 @@ class PaymentService
 
             // Send notification to client
             if ($updated->client) {
-                $updated->client->notify(new \App\Notifications\PaymentRejectedNotification($updated));
+                try {
+                    $updated->client->notify(new \App\Notifications\PaymentRejectedNotification($updated));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed sending payment rejected notification to client {$updated->client->id}: " . $e->getMessage(), ['exception' => $e]);
+                }
             }
 
             return $updated;

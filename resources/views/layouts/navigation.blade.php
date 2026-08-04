@@ -28,6 +28,9 @@
                         <x-nav-link :href="route('payments.create')" :active="request()->routeIs('payments.create')">
                             {{ __('Submit Payment') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('client.quotations.index')" :active="request()->routeIs('client.quotations.*')">
+                            {{ __('Quotations') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
                             {{ __('Analytics & Reports') }}
                         </x-nav-link>

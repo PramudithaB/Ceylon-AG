@@ -48,8 +48,15 @@ class StockRequestController extends Controller
         ]);
 
         // Notify Admins
-        $admins = User::role(['Super Admin', 'Admin'])->get();
-        Notification::send($admins, new StockRequestSubmittedNotification($stockRequest));
+        try {
+            $admins = User::where('role', User::ROLE_ADMIN)->get();
+            if ($admins->isEmpty()) {
+                $admins = User::role(['Super Admin', 'Admin'])->get();
+            }
+            Notification::send($admins, new StockRequestSubmittedNotification($stockRequest));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed sending stock request notification #{$stockRequest->request_number}: " . $e->getMessage(), ['exception' => $e]);
+        }
 
         return redirect()->route('stock-requests.index')
             ->with('success', "Stock Request #{$stockRequest->request_number} submitted to Ceylon AG management.");

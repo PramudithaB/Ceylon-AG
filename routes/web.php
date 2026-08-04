@@ -1,19 +1,53 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Admin\AdminQuotationController;
+use App\Http\Controllers\Admin\AdminSalesController;
+use App\Http\Controllers\Admin\AdminStockRequestController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ClientManagementController;
+use App\Http\Controllers\Admin\CompanySettingController;
+use App\Http\Controllers\Admin\ProductAssignmentController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Client\ClientQuotationController;
+use App\Http\Controllers\Client\ClientReportController;
+use App\Http\Controllers\Client\PaymentController;
+use App\Http\Controllers\Client\SalesController;
+use App\Http\Controllers\Client\StockRequestController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Ref\RefAnnouncementController;
+use App\Http\Controllers\Ref\RefClientController;
+use App\Http\Controllers\Ref\RefDashboardController;
+use App\Http\Controllers\Ref\RefNotificationController;
+use App\Http\Controllers\Ref\RefPaymentController;
+use App\Http\Controllers\Ref\RefProductController;
+use App\Http\Controllers\Ref\RefProfileController;
+use App\Http\Controllers\Ref\RefSalesController;
+use App\Http\Controllers\Ref\RefStockRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Central Dashboard Redirection Route based on users.role
 Route::get('/dashboard', function (\App\Services\ClientSaleService $saleService) {
     $user = auth()->user();
+
+    if ($user && $user->isAdmin()) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    if ($user && $user->isRef()) {
+        return redirect()->route('ref.dashboard');
+    }
+
     $summary = ['total_assigned' => 0, 'total_sold' => 0, 'remaining_stock' => 0, 'total_revenue' => 0];
     $inventoryBreakdown = collect();
     $recentSales = collect();
 
-    if ($user && $user->hasRole('Client')) {
+    if ($user && ($user->isClient() || $user->hasRole('Client'))) {
         $summary = $saleService->getClientSummary($user);
         $inventoryBreakdown = $saleService->getClientInventoryBreakdown($user);
         $recentSales = $saleService->getClientSales($user, [], 5);
@@ -25,23 +59,10 @@ Route::get('/dashboard', function (\App\Services\ClientSaleService $saleService)
         'inventoryBreakdown' => $inventoryBreakdown,
         'recentSales' => $recentSales,
     ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-use App\Http\Controllers\Admin\AdminPaymentController;
-use App\Http\Controllers\Admin\AdminSalesController;
-use App\Http\Controllers\Admin\AdminStockRequestController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ClientManagementController;
-use App\Http\Controllers\Admin\ProductAssignmentController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Client\ClientReportController;
-use App\Http\Controllers\Client\PaymentController;
-use App\Http\Controllers\Client\SalesController;
-use App\Http\Controllers\Client\StockRequestController;
+})->middleware(['auth', 'verified', 'role.user:client'])->name('dashboard');
 
 // Client Sales, Payment, Stock Request & Report Routes
-Route::middleware(['auth', 'verified', 'role:Client'])->group(function () {
+Route::middleware(['auth', 'verified', 'role.user:client'])->group(function () {
     Route::prefix('sales')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('sales.index');
         Route::get('/create', [SalesController::class, 'create'])->name('sales.create');
@@ -68,10 +89,54 @@ Route::middleware(['auth', 'verified', 'role:Client'])->group(function () {
         Route::get('/export-excel', [ClientReportController::class, 'exportExcel'])->name('reports.export-excel');
         Route::get('/export-pdf', [ClientReportController::class, 'exportPdf'])->name('reports.export-pdf');
     });
+
+    Route::prefix('quotations')->group(function () {
+        Route::get('/', [ClientQuotationController::class, 'index'])->name('client.quotations.index');
+        Route::get('/{quotation}', [ClientQuotationController::class, 'show'])->name('client.quotations.show');
+        Route::get('/{quotation}/pdf', [ClientQuotationController::class, 'downloadPdf'])->name('client.quotations.pdf');
+        Route::get('/{quotation}/print', [ClientQuotationController::class, 'print'])->name('client.quotations.print');
+    });
+});
+
+// Reference (REF) Role Routes (Sales Representative Portal)
+Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(function () {
+    Route::get('/dashboard', [RefDashboardController::class, 'index'])->name('ref.dashboard');
+
+    // Assigned Clients
+    Route::get('/clients', [RefClientController::class, 'index'])->name('ref.clients.index');
+    Route::get('/clients/{client}', [RefClientController::class, 'show'])->name('ref.clients.show');
+
+    // Assigned Products & Availability
+    Route::get('/products', [RefProductController::class, 'index'])->name('ref.products.index');
+
+    // Submit product stock requests to Admin
+    Route::get('/stock-requests', [RefStockRequestController::class, 'index'])->name('ref.stock-requests.index');
+    Route::get('/stock-requests/create', [RefStockRequestController::class, 'create'])->name('ref.stock-requests.create');
+    Route::post('/stock-requests', [RefStockRequestController::class, 'store'])->name('ref.stock-requests.store');
+
+    // Sales history & reports
+    Route::get('/sales', [RefSalesController::class, 'index'])->name('ref.sales.index');
+    Route::get('/sales/reports', [RefSalesController::class, 'reports'])->name('ref.sales.reports');
+
+    // Payment status tracking
+    Route::get('/payments', [RefPaymentController::class, 'index'])->name('ref.payments.index');
+    Route::get('/payments/{payment}', [RefPaymentController::class, 'show'])->name('ref.payments.show');
+
+    // Notifications
+    Route::get('/notifications', [RefNotificationController::class, 'index'])->name('ref.notifications.index');
+    Route::post('/notifications/read-all', [RefNotificationController::class, 'markAllAsRead'])->name('ref.notifications.read-all');
+
+    // Announcements
+    Route::get('/announcements', [RefAnnouncementController::class, 'index'])->name('ref.announcements.index');
+
+    // Ref Profile & Password management
+    Route::get('/profile', [RefProfileController::class, 'edit'])->name('ref.profile.edit');
+    Route::patch('/profile', [RefProfileController::class, 'update'])->name('ref.profile.update');
+    Route::put('/profile/password', [RefProfileController::class, 'updatePassword'])->name('ref.profile.password');
 });
 
 // Admin Dashboard, Client, Category, Product, Assignment, Stock Request, Sales, Payment & Report Routes
-Route::prefix('admin')->middleware(['auth', 'approved', 'role:Super Admin|Admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'approved', 'role.user:admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -136,6 +201,27 @@ Route::prefix('admin')->middleware(['auth', 'approved', 'role:Super Admin|Admin'
     Route::get('/product-assignments/create', [ProductAssignmentController::class, 'create'])->name('admin.product-assignments.create');
     Route::post('/product-assignments', [ProductAssignmentController::class, 'store'])->name('admin.product-assignments.store');
     Route::get('/product-assignments/{productAssignment}', [ProductAssignmentController::class, 'show'])->name('admin.product-assignments.show');
+
+    // Quotation Management Module Routes
+    Route::prefix('quotations')->group(function () {
+        Route::get('/dashboard', [AdminQuotationController::class, 'dashboard'])->name('admin.quotations.dashboard');
+        Route::get('/', [AdminQuotationController::class, 'index'])->name('admin.quotations.index');
+        Route::get('/create', [AdminQuotationController::class, 'create'])->name('admin.quotations.create');
+        Route::post('/', [AdminQuotationController::class, 'store'])->name('admin.quotations.store');
+
+        Route::get('/settings', [CompanySettingController::class, 'edit'])->name('admin.quotations.settings.edit');
+        Route::put('/settings', [CompanySettingController::class, 'update'])->name('admin.quotations.settings.update');
+
+        Route::get('/{quotation}', [AdminQuotationController::class, 'show'])->name('admin.quotations.show');
+        Route::get('/{quotation}/edit', [AdminQuotationController::class, 'edit'])->name('admin.quotations.edit');
+        Route::put('/{quotation}', [AdminQuotationController::class, 'update'])->name('admin.quotations.update');
+        Route::delete('/{quotation}', [AdminQuotationController::class, 'destroy'])->name('admin.quotations.destroy');
+
+        Route::get('/{quotation}/print', [AdminQuotationController::class, 'print'])->name('admin.quotations.print');
+        Route::get('/{quotation}/pdf', [AdminQuotationController::class, 'downloadPdf'])->name('admin.quotations.pdf');
+        Route::post('/{quotation}/email', [AdminQuotationController::class, 'sendEmail'])->name('admin.quotations.email');
+        Route::post('/{quotation}/duplicate', [AdminQuotationController::class, 'duplicate'])->name('admin.quotations.duplicate');
+    });
 
     Route::get('/test-flash/{type}', function ($type) {
         $messages = [

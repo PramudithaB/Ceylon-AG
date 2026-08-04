@@ -39,7 +39,11 @@ class AdminStockRequestController extends Controller
         ]);
 
         // Notify Client
-        $stockRequest->client->notify(new StockRequestStatusNotification($stockRequest));
+        try {
+            $stockRequest->client->notify(new StockRequestStatusNotification($stockRequest));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed sending stock request status notification #{$stockRequest->request_number}: " . $e->getMessage(), ['exception' => $e]);
+        }
 
         return redirect()->back()->with('success', "Stock Request #{$stockRequest->request_number} approved successfully.");
     }
@@ -62,7 +66,11 @@ class AdminStockRequestController extends Controller
         ]);
 
         // Notify Client
-        $stockRequest->client->notify(new StockRequestStatusNotification($stockRequest));
+        try {
+            $stockRequest->client->notify(new StockRequestStatusNotification($stockRequest));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed sending stock request status notification #{$stockRequest->request_number}: " . $e->getMessage(), ['exception' => $e]);
+        }
 
         return redirect()->back()->with('success', "Stock Request #{$stockRequest->request_number} rejected.");
     }

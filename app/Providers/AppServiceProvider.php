@@ -48,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\ReportRepositoryInterface::class,
             \App\Repositories\ReportRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Contracts\QuotationRepositoryInterface::class,
+            \App\Repositories\Eloquent\QuotationRepository::class
+        );
     }
 
     /**
