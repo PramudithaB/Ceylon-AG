@@ -55,8 +55,10 @@ class ProfileController extends Controller
             $user->profile_photo_path = $path;
         }
 
-        if ($request->has('first_name') && $request->has('last_name')) {
+        if ($request->filled('first_name') && $request->filled('last_name')) {
             $user->name = "{$request->first_name} {$request->last_name}";
+        } elseif ($request->filled('name')) {
+            $user->name = $request->input('name');
         }
 
         $user->fill($validated);

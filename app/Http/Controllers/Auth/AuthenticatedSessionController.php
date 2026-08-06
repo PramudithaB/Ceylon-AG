@@ -27,18 +27,22 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $request->session()->forget('url.intended');
+
+        // Clear Spatie permission cache to ensure fresh role evaluation
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
         $user = Auth::user();
 
-        if ($user?->isAdmin()) {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+        if ($user?->isAdmin() || $user?->hasRole('Super Admin') || $user?->hasRole('Admin')) {
+            return redirect()->route('admin.dashboard');
         }
 
-        if ($user?->isRef()) {
-            return redirect()->intended(route('ref.dashboard', absolute: false));
+        if ($user?->isRef() || $user?->hasRole('Ref')) {
+            return redirect()->route('ref.dashboard');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->route('dashboard');
     }
 
     /**

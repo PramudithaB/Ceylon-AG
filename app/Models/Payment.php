@@ -19,12 +19,16 @@ class Payment extends Model
         'payment_number',
         'client_id',
         'amount',
+        'payment_method',
         'payment_date',
         'bank_name',
         'reference_number',
+        'cheque_number',
+        'card_last_four',
         'payment_screenshot',
         'remarks',
         'status',
+        'collected_by',
         'reviewed_by',
         'rejection_reason',
         'reviewed_at',
@@ -50,6 +54,14 @@ class Payment extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Sales Representative collector relationship.
+     */
+    public function collector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'collected_by');
     }
 
     /**

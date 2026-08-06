@@ -5,58 +5,62 @@
 
     <!-- Top Action Bar -->
     <div class="flex items-center justify-between">
-        <a href="{{ route('ref.sales.index') }}" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-semibold">
-            &larr; Back to Sales History
+        <a href="{{ route('ref.sales.index') }}" class="text-xs font-bold text-gray-500 hover:text-[#1E8E3E] flex items-center gap-1.5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>Back to Sales History</span>
         </a>
     </div>
 
     <!-- Summary Metrics -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Sales Count</span>
-            <div class="text-3xl font-extrabold text-white mt-2">{{ number_format($totalSalesCount) }}</div>
-            <p class="text-xs text-slate-500 mt-1">Total completed transactions</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="ref-card rounded-3xl p-6 sm:p-8">
+            <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total Sales Count</span>
+            <div class="text-3xl font-extrabold text-gray-900 tracking-tight mt-2">{{ number_format($totalSalesCount) }}</div>
+            <p class="text-xs text-gray-400 font-medium mt-1">Total completed transactions</p>
         </div>
 
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Products Sold</span>
-            <div class="text-3xl font-extrabold text-teal-400 mt-2">{{ number_format($totalItemsSold) }} units</div>
-            <p class="text-xs text-slate-500 mt-1">Volume across all product lines</p>
+        <div class="ref-card rounded-3xl p-6 sm:p-8">
+            <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total Products Sold</span>
+            <div class="text-3xl font-extrabold text-[#1E8E3E] tracking-tight mt-2">{{ number_format($totalItemsSold) }} units</div>
+            <p class="text-xs text-gray-400 font-medium mt-1">Volume across all product lines</p>
         </div>
 
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Generated Revenue</span>
-            <div class="text-3xl font-extrabold text-emerald-400 mt-2">LKR {{ number_format($totalRevenue, 2) }}</div>
-            <p class="text-xs text-slate-500 mt-1">Gross revenue generated</p>
+        <div class="ref-card rounded-3xl p-6 sm:p-8">
+            <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Total Generated Revenue</span>
+            <div class="text-3xl font-extrabold text-[#1E8E3E] tracking-tight mt-2">LKR {{ number_format($totalRevenue, 2) }}</div>
+            <p class="text-xs text-gray-400 font-medium mt-1">Gross territory revenue</p>
         </div>
     </div>
 
-    <!-- Breakdown Table -->
-    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl p-6 space-y-4">
-        <h3 class="text-base font-bold text-white tracking-tight">Sales Breakdown by Client</h3>
+    <!-- Breakdown Table Card -->
+    <div class="ref-card rounded-3xl p-6 sm:p-8 space-y-4">
+        <div class="border-b border-gray-100 pb-4">
+            <h3 class="text-base font-extrabold text-gray-900 tracking-tight">Sales Breakdown by Client Portfolio</h3>
+            <p class="text-xs text-gray-500 font-medium mt-0.5">Comprehensive sales volume and revenue contribution per client</p>
+        </div>
         
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-950/70 text-slate-400 uppercase font-semibold border-b border-slate-800">
+            <table class="w-full text-left text-xs font-medium text-gray-700">
+                <thead class="bg-gray-50/80 text-gray-500 uppercase tracking-wider font-bold border-b border-gray-100">
                     <tr>
-                        <th class="px-5 py-3.5">Client</th>
-                        <th class="px-5 py-3.5">Transactions</th>
-                        <th class="px-5 py-3.5">Items Sold</th>
-                        <th class="px-5 py-3.5">Revenue Contribution</th>
+                        <th class="px-6 py-4">Client Business</th>
+                        <th class="px-6 py-4 text-center">Transactions</th>
+                        <th class="px-6 py-4 text-center">Items Sold</th>
+                        <th class="px-6 py-4 text-right">Revenue Contribution</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/60">
+                <tbody class="divide-y divide-gray-100">
                     @forelse($salesByClient as $item)
-                        <tr class="hover:bg-slate-800/40 transition-colors">
-                            <td class="px-5 py-4 font-bold text-white">{{ $item->client->business_name ?? $item->client->name }}</td>
-                            <td class="px-5 py-4 font-semibold text-slate-200">{{ number_format($item->sales_count) }}</td>
-                            <td class="px-5 py-4 font-semibold text-slate-200">{{ number_format($item->items) }} units</td>
-                            <td class="px-5 py-4 font-extrabold text-emerald-400">LKR {{ number_format($item->revenue, 2) }}</td>
+                        <tr class="hover:bg-emerald-50/40 transition-colors">
+                            <td class="px-6 py-4 font-extrabold text-gray-900 text-sm">{{ $item->client->business_name ?? $item->client->name }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-gray-900">{{ number_format($item->sales_count) }}</td>
+                            <td class="px-6 py-4 text-center font-bold text-gray-900">{{ number_format($item->items) }} units</td>
+                            <td class="px-6 py-4 text-right font-extrabold text-[#1E8E3E] text-sm">LKR {{ number_format($item->revenue, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-5 py-8 text-center text-slate-500">
-                                No client sales reports data available.
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-400 font-medium">
+                                No client sales report data available yet.
                             </td>
                         </tr>
                     @endforelse

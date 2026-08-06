@@ -3,97 +3,64 @@
 namespace App\Http\Controllers\Ref;
 
 use App\Http\Controllers\Controller;
-use App\Models\ClientSale;
-use App\Models\Payment;
 use App\Models\Product;
-use App\Models\ProductAssignment;
-use App\Models\User;
+use App\Services\RefCrmService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class RefDashboardController extends Controller
 {
-    public function index()
+    protected RefCrmService $crmService;
+
+    public function __construct(RefCrmService $crmService)
     {
-        $refUser = Auth::user();
+        $this->crmService = $crmService;
+    }
 
-        // Get clients assigned to this Ref user, or fallback to all active client users if none explicitly assigned
-        $assignedClientIds = $refUser->assignedClients()->pluck('id');
-        if ($assignedClientIds->isEmpty()) {
-            $assignedClientIds = User::where('role', User::ROLE_CLIENT)
-                ->whereIn('status', [User::STATUS_APPROVED, User::STATUS_ACTIVE])
-                ->pluck('id');
+    /**
+     * Render Single Split-Screen Client Workspace Dashboard.
+     */
+    public function index(Request $request)
+    {
+        $refUser = auth()->user();
+
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $district = $request->input('district');
+
+        // Fetch all clients in system for top selector dropdown
+        $allClients = $this->crmService->getAllClientsForSelector($search);
+
+        $assignedClients = $this->crmService->getAssignedClients($refUser, $search, $status, $district);
+        if ($assignedClients->isEmpty()) {
+            $assignedClients = $allClients;
         }
 
-        // Dashboard Card Data
-        $assignedClientsCount = count($assignedClientIds);
+        // Determine selected client
+        $selectedClientId = $request->input('client_id');
+        $selectedClient = null;
 
-        $assignedProductsCount = ProductAssignment::whereIn('client_id', $assignedClientIds)
-            ->distinct('product_id')
-            ->count('product_id');
-
-        if ($assignedProductsCount === 0) {
-            $assignedProductsCount = Product::where('status', 'active')->count();
+        if ($selectedClientId) {
+            $selectedClient = $allClients->firstWhere('id', (int) $selectedClientId) 
+                ?? \App\Models\User::where('id', (int) $selectedClientId)->first();
         }
 
-        $currentMonthSales = ClientSale::whereIn('client_id', $assignedClientIds)
-            ->whereMonth('sold_at', now()->month)
-            ->whereYear('sold_at', now()->year)
-            ->sum('total_amount');
-
-        $pendingPaymentsCount = Payment::whereIn('client_id', $assignedClientIds)
-            ->where('status', 'pending')
-            ->count();
-
-        // Commission placeholder (5% of current month sales)
-        $totalCommission = $currentMonthSales * 0.05;
-
-        // Chart Data 1: Monthly Sales (Last 6 Months)
-        $monthlySalesChart = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $monthName = $date->format('M Y');
-            $total = ClientSale::whereIn('client_id', $assignedClientIds)
-                ->whereMonth('sold_at', $date->month)
-                ->whereYear('sold_at', $date->year)
-                ->sum('total_amount');
-
-            $monthlySalesChart['labels'][] = $monthName;
-            $monthlySalesChart['data'][] = (float) $total;
+        // Fetch full workspace data for selected client if available
+        $workspaceData = null;
+        if ($selectedClient) {
+            $workspaceData = $this->crmService->getClientFullWorkspaceData($selectedClient, $refUser);
         }
 
-        // Chart Data 2: Client Performance (Top Clients by Total Sales Volume)
-        $clientPerformance = ClientSale::whereIn('client_id', $assignedClientIds)
-            ->select('client_id', DB::raw('SUM(total_amount) as total_sales'))
-            ->groupBy('client_id')
-            ->with('client:id,name,business_name')
-            ->orderByDesc('total_sales')
-            ->limit(5)
-            ->get();
+        // Products list for Stock Request modal/form
+        $products = Product::where('status', 'active')->orderBy('name')->get();
 
-        $clientPerformanceChart = [
-            'labels' => $clientPerformance->map(fn($item) => $item->client->business_name ?? $item->client->name ?? 'Client')->toArray(),
-            'data' => $clientPerformance->map(fn($item) => (float) $item->total_sales)->toArray(),
-        ];
-
-        // Recent Activity / Sales
-        $recentSales = ClientSale::whereIn('client_id', $assignedClientIds)
-            ->with(['client', 'product'])
-            ->latest('sold_at')
-            ->limit(5)
-            ->get();
-
-        return view('ref.dashboard', compact(
-            'refUser',
-            'assignedClientsCount',
-            'assignedProductsCount',
-            'currentMonthSales',
-            'pendingPaymentsCount',
-            'totalCommission',
-            'monthlySalesChart',
-            'clientPerformanceChart',
-            'recentSales'
-        ));
+        return view('ref.dashboard', array_merge([
+            'allClients' => $allClients,
+            'assignedClients' => $assignedClients,
+            'selectedClient' => $selectedClient,
+            'products' => $products,
+            'search' => $search,
+            'status' => $status,
+            'district' => $district,
+        ], $workspaceData ?? []));
     }
 }

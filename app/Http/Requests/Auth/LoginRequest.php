@@ -52,12 +52,16 @@ class LoginRequest extends FormRequest
 
         $user = Auth::user();
         if ($user && ! $user->isApproved()) {
-            Auth::logout();
+            Auth::guard('web')->logout();
+
+            if ($this->hasSession()) {
+                $this->session()->invalidate();
+                $this->session()->regenerateToken();
+            }
+
             RateLimiter::hit($this->throttleKey());
 
-            $message = $user->isPending()
-                ? 'Your account is currently pending administrator approval. Please wait for account activation before logging in.'
-                : 'Your account registration request has been rejected.';
+            $message = 'Your account is pending approval. Please wait until an administrator approves your account.';
 
             throw ValidationException::withMessages([
                 'email' => $message,

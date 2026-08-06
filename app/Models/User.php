@@ -178,6 +178,22 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Notes logged for client.
+     */
+    public function clientNotes()
+    {
+        return $this->hasMany(ClientNote::class, 'client_id');
+    }
+
+    /**
+     * Payments collected by Ref.
+     */
+    public function collectedPayments()
+    {
+        return $this->hasMany(Payment::class, 'collected_by');
+    }
+
+    /**
      * Send custom queued email verification notification.
      */
     public function sendEmailVerificationNotification(): void

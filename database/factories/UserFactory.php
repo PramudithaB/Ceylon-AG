@@ -30,6 +30,8 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'status' => User::STATUS_APPROVED,
+            'role' => User::ROLE_CLIENT,
         ];
     }
 
@@ -40,6 +42,38 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user account is pending approval.
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => User::STATUS_PENDING,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an Admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_APPROVED,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a Sales Rep (Ref).
+     */
+    public function ref(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_REF,
+            'status' => User::STATUS_APPROVED,
         ]);
     }
 }

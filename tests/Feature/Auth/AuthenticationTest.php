@@ -17,9 +17,9 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
+    public function test_approved_client_can_authenticate(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['status' => 'approved', 'role' => 'client']);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -27,7 +27,46 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('dashboard'));
+    }
+
+    public function test_admin_authenticates_to_admin_dashboard(): void
+    {
+        $user = User::factory()->create(['status' => 'approved', 'role' => 'admin']);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_ref_authenticates_to_ref_dashboard(): void
+    {
+        $user = User::factory()->create(['status' => 'approved', 'role' => 'ref']);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('ref.dashboard'));
+    }
+
+    public function test_pending_client_login_is_denied(): void
+    {
+        $user = User::factory()->create(['status' => 'pending', 'role' => 'client']);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors(['email' => 'Your account is pending approval. Please wait until an administrator approves your account.']);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

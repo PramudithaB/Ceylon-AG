@@ -86,7 +86,8 @@ class RegisteredUserController extends Controller
             'role' => User::ROLE_CLIENT,
         ]);
 
-        // Assign Client role
+        // Ensure Client role exists and assign it
+        \Spatie\Permission\Models\Role::findOrCreate('Client', 'web');
         $user->assignRole('Client');
 
         try {
@@ -98,6 +99,9 @@ class RegisteredUserController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Failed sending registration emails to {$user->email}: " . $e->getMessage(), ['exception' => $e]);
         }
+
+        // Clear intended URL state so subsequent logins start fresh
+        $request->session()->forget('url.intended');
 
         // Redirect to registration pending approval notice page (DO NOT AUTO-LOGIN)
         return redirect()->route('register.success')->with('registered_email', $user->email);

@@ -18,6 +18,7 @@ use App\Http\Controllers\Client\StockRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Ref\RefAnnouncementController;
 use App\Http\Controllers\Ref\RefClientController;
+use App\Http\Controllers\Ref\RefClientCrmController;
 use App\Http\Controllers\Ref\RefDashboardController;
 use App\Http\Controllers\Ref\RefNotificationController;
 use App\Http\Controllers\Ref\RefPaymentController;
@@ -35,23 +36,21 @@ Route::get('/', function () {
 Route::get('/dashboard', function (\App\Services\ClientSaleService $saleService) {
     $user = auth()->user();
 
-    if ($user && $user->isAdmin()) {
+    if (! $user) {
+        return redirect()->route('login');
+    }
+
+    if ($user->isAdmin() || $user->hasRole('Super Admin') || $user->hasRole('Admin')) {
         return redirect()->route('admin.dashboard');
     }
 
-    if ($user && $user->isRef()) {
+    if ($user->isRef() || $user->hasRole('Ref')) {
         return redirect()->route('ref.dashboard');
     }
 
-    $summary = ['total_assigned' => 0, 'total_sold' => 0, 'remaining_stock' => 0, 'total_revenue' => 0];
-    $inventoryBreakdown = collect();
-    $recentSales = collect();
-
-    if ($user && ($user->isClient() || $user->hasRole('Client'))) {
-        $summary = $saleService->getClientSummary($user);
-        $inventoryBreakdown = $saleService->getClientInventoryBreakdown($user);
-        $recentSales = $saleService->getClientSales($user, [], 5);
-    }
+    $summary = $saleService->getClientSummary($user);
+    $inventoryBreakdown = $saleService->getClientInventoryBreakdown($user);
+    $recentSales = $saleService->getClientSales($user, [], 5);
 
     return view('dashboard', [
         'user' => $user,
@@ -59,7 +58,7 @@ Route::get('/dashboard', function (\App\Services\ClientSaleService $saleService)
         'inventoryBreakdown' => $inventoryBreakdown,
         'recentSales' => $recentSales,
     ]);
-})->middleware(['auth', 'verified', 'role.user:client'])->name('dashboard');
+})->middleware(['auth', 'verified', 'approved'])->name('dashboard');
 
 // Client Sales, Payment, Stock Request & Report Routes
 Route::middleware(['auth', 'verified', 'role.user:client'])->group(function () {
@@ -100,7 +99,13 @@ Route::middleware(['auth', 'verified', 'role.user:client'])->group(function () {
 
 // Reference (REF) Role Routes (Sales Representative Portal)
 Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(function () {
+    // Reference CRM Client Workspace Routes
     Route::get('/dashboard', [RefDashboardController::class, 'index'])->name('ref.dashboard');
+    Route::get('/workspace/client/{client}', [RefClientCrmController::class, 'showAjax'])->name('ref.workspace.client');
+    Route::post('/workspace/client/{client}/payments', [RefClientCrmController::class, 'storePayment'])->name('ref.workspace.payments.store');
+    Route::post('/workspace/client/{client}/stock-requests', [RefClientCrmController::class, 'storeStockRequest'])->name('ref.workspace.stock-requests.store');
+    Route::post('/workspace/client/{client}/notes', [RefClientCrmController::class, 'storeNote'])->name('ref.workspace.notes.store');
+    Route::get('/workspace/client/{client}/print', [RefClientCrmController::class, 'printSummary'])->name('ref.workspace.client.print');
 
     // Assigned Clients
     Route::get('/clients', [RefClientController::class, 'index'])->name('ref.clients.index');

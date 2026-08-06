@@ -23,9 +23,7 @@ class EnsureAccountIsApproved
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            $statusMessage = $user->isPending()
-                ? 'Your account registration is currently pending admin approval.'
-                : 'Your account registration request has been rejected.';
+            $statusMessage = 'Your account is pending approval. Please wait until an administrator approves your account.';
 
             return redirect()->route('login')->withErrors([
                 'email' => $statusMessage,

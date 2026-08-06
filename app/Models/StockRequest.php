@@ -19,7 +19,11 @@ class StockRequest extends Model
         'client_id',
         'product_id',
         'requested_quantity',
+        'priority',
+        'expected_delivery_date',
         'notes',
+        'reason',
+        'attachment_path',
         'status',
         'rejection_reason',
         'reviewed_by',
@@ -28,6 +32,7 @@ class StockRequest extends Model
 
     protected $casts = [
         'requested_quantity' => 'integer',
+        'expected_delivery_date' => 'date',
         'reviewed_at' => 'datetime',
     ];
 

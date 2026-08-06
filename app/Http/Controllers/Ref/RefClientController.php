@@ -48,37 +48,10 @@ class RefClientController extends Controller
     }
 
     /**
-     * Display detailed profile of a client.
+     * Display detailed profile of a client (Redirects to Single Client Workspace).
      */
     public function show(User $client)
     {
-        // Ensure user is a client
-        if ($client->role !== User::ROLE_CLIENT && ! $client->hasRole('Client')) {
-            abort(404);
-        }
-
-        // Product Assignments for this client
-        $productAssignments = ProductAssignment::where('client_id', $client->id)
-            ->with('product')
-            ->latest('assigned_at')
-            ->get();
-
-        // Sales history
-        $sales = ClientSale::where('client_id', $client->id)
-            ->with('product')
-            ->latest('sold_at')
-            ->paginate(5, ['*'], 'sales_page');
-
-        // Payments status
-        $payments = Payment::where('client_id', $client->id)
-            ->latest('payment_date')
-            ->paginate(5, ['*'], 'payments_page');
-
-        // Financial summary
-        $totalPurchases = ClientSale::where('client_id', $client->id)->sum('total_amount');
-        $totalPaid = Payment::where('client_id', $client->id)->where('status', 'approved')->sum('amount');
-        $pendingPayments = Payment::where('client_id', $client->id)->where('status', 'pending')->sum('amount');
-
-        return view('ref.clients.show', compact('client', 'productAssignments', 'sales', 'payments', 'totalPurchases', 'totalPaid', 'pendingPayments'));
+        return redirect()->route('ref.dashboard', ['client_id' => $client->id]);
     }
 }
