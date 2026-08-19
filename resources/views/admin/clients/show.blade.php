@@ -21,7 +21,7 @@
                     Edit Client
                 </a>
 
-                @role('Super Admin')
+                @if(auth()->user() && (auth()->user()->isAdmin() || auth()->user()->hasRole('Super Admin')))
                     <form method="POST" action="{{ route('admin.clients.destroy', $client) }}" onsubmit="return confirm('Are you sure you want to permanently delete this client account?');">
                         @csrf
                         @method('DELETE')
@@ -32,7 +32,7 @@
                             Delete Client
                         </button>
                     </form>
-                @endrole
+                @endif
             </div>
         </div>
     </x-slot>
