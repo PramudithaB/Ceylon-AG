@@ -70,6 +70,18 @@ class RefStockRequestController extends Controller
             'status' => StockRequest::STATUS_PENDING,
         ]);
 
+        // Notify Admins
+        try {
+            $admins = User::where('role', User::ROLE_ADMIN)
+                ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['Admin', 'Super Admin']))
+                ->get();
+            if ($admins->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewStockRequestSubmittedNotification($stockRequest));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed sending stock request notification for #{$stockRequest->request_number}: " . $e->getMessage());
+        }
+
         flash_message('Stock request submitted successfully to Admin for approval.', 'success');
 
         return redirect()->route('ref.stock-requests.index');

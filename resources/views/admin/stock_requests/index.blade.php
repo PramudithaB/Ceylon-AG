@@ -34,8 +34,10 @@
                         <tr class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                             <th class="py-3.5 px-6">Request Code #</th>
                             <th class="py-3.5 px-6">Client Partner</th>
+                            <th class="py-3.5 px-6">Sales Rep</th>
                             <th class="py-3.5 px-6">Product</th>
                             <th class="py-3.5 px-6">Requested Qty</th>
+                            <th class="py-3.5 px-6">Warehouse Stock</th>
                             <th class="py-3.5 px-6">Status</th>
                             <th class="py-3.5 px-6">Date</th>
                             <th class="py-3.5 px-6 text-right">Actions</th>
@@ -51,11 +53,27 @@
                                     <div class="font-bold text-slate-900 dark:text-white">{{ $req->client->name ?? 'N/A' }}</div>
                                     <div class="text-[11px] text-slate-400">{{ $req->client->business_name ?? '-' }}</div>
                                 </td>
-                                <td class="py-4 px-6 font-bold text-slate-800 dark:text-slate-200">
-                                    {{ $req->product->name ?? 'N/A' }}
+                                <td class="py-4 px-6 text-slate-600 dark:text-slate-400">
+                                    {{ $req->client->salesRep->full_name ?? ($req->client->salesRep->name ?? 'Direct') }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="font-bold text-slate-800 dark:text-slate-200">{{ $req->product->name ?? 'N/A' }}</div>
+                                    <div class="text-[11px] font-mono text-slate-400">SKU: {{ $req->product->sku ?? '-' }}</div>
                                 </td>
                                 <td class="py-4 px-6 font-black text-slate-900 dark:text-white text-sm">
                                     {{ $req->requested_quantity }} units
+                                </td>
+                                <td class="py-4 px-6">
+                                    @php $whStock = $req->product->stock_quantity ?? 0; @endphp
+                                    @if($whStock >= $req->requested_quantity)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                            {{ $whStock }} available
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300" title="Warehouse stock is less than requested quantity">
+                                            ⚠️ {{ $whStock }} in stock
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="py-4 px-6">
                                     @if($req->isPending())
@@ -64,7 +82,7 @@
                                         </span>
                                     @elseif($req->isApproved())
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                                            ✓ Approved
+                                            ✓ Approved & Assigned
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
@@ -80,8 +98,8 @@
                                         <form method="POST" action="{{ route('admin.stock-requests.approve', $req->id) }}" class="inline-block">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" onclick="return confirm('Approve this stock request?')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px]">
-                                                Approve
+                                            <button type="submit" onclick="return confirm('Approve this stock request and automatically assign {{ $req->requested_quantity }} units to {{ $req->client->name }}?')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] shadow-sm">
+                                                Approve & Assign
                                             </button>
                                         </form>
 
@@ -95,7 +113,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400 dark:text-slate-500">
+                                <td colspan="9" class="py-12 text-center text-slate-400 dark:text-slate-500">
                                     No stock allocation requests found.
                                 </td>
                             </tr>

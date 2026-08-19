@@ -26,9 +26,12 @@
                                 <th class="py-3.5 px-6">Request Code #</th>
                                 <th class="py-3.5 px-6">Product</th>
                                 <th class="py-3.5 px-6">Requested Qty</th>
+                                <th class="py-3.5 px-6">Approved Qty</th>
                                 <th class="py-3.5 px-6">Status</th>
                                 <th class="py-3.5 px-6">Requested Date</th>
-                                <th class="py-3.5 px-6">Notes / Rejection Reason</th>
+                                <th class="py-3.5 px-6">Approval Date</th>
+                                <th class="py-3.5 px-6">Sales Rep</th>
+                                <th class="py-3.5 px-6">Notes / Remarks</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs">
@@ -37,20 +40,30 @@
                                     <td class="py-4 px-6 font-mono font-bold text-emerald-600 dark:text-emerald-400">
                                         {{ $req->request_number }}
                                     </td>
-                                    <td class="py-4 px-6 font-bold text-slate-900 dark:text-white">
-                                        {{ $req->product->name ?? 'N/A' }}
+                                    <td class="py-4 px-6">
+                                        <div class="font-bold text-slate-900 dark:text-white">{{ $req->product->name ?? 'N/A' }}</div>
+                                        <div class="text-[11px] font-mono text-slate-400">SKU: {{ $req->product->sku ?? '-' }}</div>
                                     </td>
-                                    <td class="py-4 px-6 font-black text-slate-900 dark:text-white text-sm">
+                                    <td class="py-4 px-6 font-semibold text-slate-800 dark:text-slate-200">
                                         {{ $req->requested_quantity }} units
+                                    </td>
+                                    <td class="py-4 px-6 font-bold">
+                                        @if($req->isApproved())
+                                            <span class="text-emerald-600 dark:text-emerald-400">{{ $req->requested_quantity }} units</span>
+                                        @elseif($req->isRejected())
+                                            <span class="text-rose-500">0 units</span>
+                                        @else
+                                            <span class="text-slate-400 italic">Pending Review</span>
+                                        @endif
                                     </td>
                                     <td class="py-4 px-6">
                                         @if($req->isPending())
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                                                ⏳ Pending
+                                                ⏳ Pending Review
                                             </span>
                                         @elseif($req->isApproved())
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                                                ✓ Approved
+                                                ✓ Approved & Assigned
                                             </span>
                                         @else
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
@@ -60,6 +73,12 @@
                                     </td>
                                     <td class="py-4 px-6 text-slate-500">
                                         {{ $req->created_at->format('M d, Y') }}
+                                    </td>
+                                    <td class="py-4 px-6 text-slate-500">
+                                        {{ $req->reviewed_at ? $req->reviewed_at->format('M d, Y') : '-' }}
+                                    </td>
+                                    <td class="py-4 px-6 text-slate-600 dark:text-slate-400">
+                                        {{ $req->client->salesRep->full_name ?? ($req->client->salesRep->name ?? 'Direct Request') }}
                                     </td>
                                     <td class="py-4 px-6 text-slate-600 dark:text-slate-400">
                                         @if($req->isRejected() && $req->rejection_reason)
@@ -71,7 +90,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="py-12 text-center text-slate-400 dark:text-slate-500">
+                                    <td colspan="9" class="py-12 text-center text-slate-400 dark:text-slate-500">
                                         No stock allocation requests submitted yet.
                                     </td>
                                 </tr>

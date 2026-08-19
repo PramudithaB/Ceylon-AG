@@ -51,12 +51,18 @@ Route::get('/dashboard', function (\App\Services\ClientSaleService $saleService)
     $summary = $saleService->getClientSummary($user);
     $inventoryBreakdown = $saleService->getClientInventoryBreakdown($user);
     $recentSales = $saleService->getClientSales($user, [], 5);
+    $stockRequests = \App\Models\StockRequest::with(['product', 'reviewer', 'client.salesRep'])
+        ->where('client_id', $user->id)
+        ->latest()
+        ->take(10)
+        ->get();
 
     return view('dashboard', [
         'user' => $user,
         'summary' => $summary,
         'inventoryBreakdown' => $inventoryBreakdown,
         'recentSales' => $recentSales,
+        'stockRequests' => $stockRequests,
     ]);
 })->middleware(['auth', 'verified', 'approved'])->name('dashboard');
 
