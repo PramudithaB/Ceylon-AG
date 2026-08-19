@@ -8,7 +8,7 @@ class StorePaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole('Client') ?? false;
+        return ($this->user()?->isClient() || $this->user()?->hasRole('Client')) ?? false;
     }
 
     public function rules(): array

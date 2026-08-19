@@ -11,7 +11,7 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->hasAnyRole(['Super Admin', 'Admin']) ?? false;
+        return ($this->user()?->isAdmin() || $this->user()?->hasAnyRole(['Super Admin', 'Admin'])) ?? false;
     }
 
     /**

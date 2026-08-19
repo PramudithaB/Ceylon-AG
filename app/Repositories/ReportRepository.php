@@ -74,8 +74,12 @@ class ReportRepository implements ReportRepositoryInterface
 
     public function getMonthlySalesTrend(?User $client = null, array $filters = []): array
     {
+        $dateExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', sold_at) as month"
+            : "DATE_FORMAT(sold_at, '%Y-%m') as month";
+
         $query = ClientSale::select(
-            DB::raw("DATE_FORMAT(sold_at, '%Y-%m') as month"),
+            DB::raw($dateExpr),
             DB::raw('SUM(total_amount) as total_sales'),
             DB::raw('SUM(quantity) as units_sold')
         );
@@ -101,8 +105,12 @@ class ReportRepository implements ReportRepositoryInterface
 
     public function getMonthlyPaymentsTrend(?User $client = null, array $filters = []): array
     {
+        $dateExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', payment_date) as month"
+            : "DATE_FORMAT(payment_date, '%Y-%m') as month";
+
         $query = Payment::select(
-            DB::raw("DATE_FORMAT(payment_date, '%Y-%m') as month"),
+            DB::raw($dateExpr),
             DB::raw('SUM(amount) as total_payments')
         )->where('status', Payment::STATUS_APPROVED);
 

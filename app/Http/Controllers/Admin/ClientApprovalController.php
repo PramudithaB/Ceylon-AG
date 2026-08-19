@@ -21,16 +21,28 @@ class ClientApprovalController extends Controller
 
         $status = $request->get('status', 'all');
 
-        $query = User::role('Client')->latest();
+        $query = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->latest();
 
         if ($status !== 'all') {
             $query->where('status', $status);
         }
 
         $clients = $query->paginate(15);
-        $pendingCount = User::role('Client')->where('status', User::STATUS_PENDING)->count();
-        $approvedCount = User::role('Client')->where('status', User::STATUS_APPROVED)->count();
-        $rejectedCount = User::role('Client')->where('status', User::STATUS_REJECTED)->count();
+        $pendingCount = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->where('status', User::STATUS_PENDING)->count();
+        $approvedCount = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->where('status', User::STATUS_APPROVED)->count();
+        $rejectedCount = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->where('status', User::STATUS_REJECTED)->count();
 
         return view('admin.clients.index', compact('clients', 'status', 'pendingCount', 'approvedCount', 'rejectedCount'));
     }

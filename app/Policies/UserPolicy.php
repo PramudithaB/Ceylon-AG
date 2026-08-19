@@ -11,7 +11,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['Super Admin', 'Admin']);
+        return $user->isAdmin() || $user->hasAnyRole(['Super Admin', 'Admin']);
     }
 
     /**
@@ -19,7 +19,7 @@ class UserPolicy
      */
     public function approve(User $user, User $model): bool
     {
-        return $user->hasAnyRole(['Super Admin', 'Admin']);
+        return $user->isAdmin() || $user->hasAnyRole(['Super Admin', 'Admin']);
     }
 
     /**
@@ -27,7 +27,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id || $user->hasRole('Super Admin');
+        return $user->id === $model->id || $user->isAdmin() || $user->hasAnyRole(['Super Admin', 'Admin']);
     }
 
     /**
@@ -35,6 +35,6 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->hasRole('Super Admin') && $user->id !== $model->id;
+        return ($user->isAdmin() || $user->hasAnyRole(['Super Admin', 'Admin'])) && $user->id !== $model->id;
     }
 }

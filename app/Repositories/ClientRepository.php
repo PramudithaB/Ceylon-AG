@@ -12,7 +12,10 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function getAllPaginated(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = User::role('Client')->latest();
+        $query = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->latest();
 
         // Search filter (Name, Business Name, NIC, Phone, Email)
         if (! empty($filters['search'])) {
@@ -51,7 +54,10 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function findById(int|string $id): ?User
     {
-        return User::role('Client')->find($id);
+        return User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })->find($id);
     }
 
     /**
@@ -59,8 +65,15 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function create(array $data): User
     {
+        $data['role'] = User::ROLE_CLIENT;
         $user = User::create($data);
-        $user->assignRole('Client');
+        
+        try {
+            \Spatie\Permission\Models\Role::findOrCreate('Client', 'web');
+            $user->assignRole('Client');
+        } catch (\Throwable $e) {
+            // Silently continue if role table not migrated yet
+        }
 
         return $user;
     }
@@ -94,11 +107,16 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function countByStatus(string $status): int
     {
+        $query = User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        });
+
         if ($status === 'all') {
-            return User::role('Client')->count();
+            return $query->count();
         }
 
-        return User::role('Client')->where('status', $status)->count();
+        return $query->where('status', $status)->count();
     }
 
     /**
@@ -106,7 +124,10 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function getAllApproved(): \Illuminate\Database\Eloquent\Collection
     {
-        return User::role('Client')
+        return User::where(function ($q) {
+            $q->where('role', User::ROLE_CLIENT)
+              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
+        })
             ->whereIn('status', [User::STATUS_APPROVED, User::STATUS_ACTIVE])
             ->orderBy('name')
             ->get();

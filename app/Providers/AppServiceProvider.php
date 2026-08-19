@@ -60,9 +60,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Implicitly grant 'Super Admin' role all permissions
+        // Implicitly grant Admin / Super Admin all gate permissions
         Gate::before(function (User $user, string $ability) {
-            return $user->hasRole('Super Admin') ? true : null;
+            return ($user->isAdmin() || $user->hasRole('Super Admin')) ? true : null;
         });
 
         Gate::policy(User::class, UserPolicy::class);

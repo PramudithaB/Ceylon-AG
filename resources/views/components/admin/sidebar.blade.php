@@ -40,7 +40,7 @@
                         </svg>
                         <span>Client Management</span>
                     </div>
-                    @php $pendingCount = \App\Models\User::role('Client')->where('status', \App\Models\User::STATUS_PENDING)->count(); @endphp
+                    @php $pendingCount = \App\Models\User::where('role', \App\Models\User::ROLE_CLIENT)->where('status', \App\Models\User::STATUS_PENDING)->count(); @endphp
                     @if($pendingCount > 0)
                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500 text-slate-950">{{ $pendingCount }}</span>
                     @endif
