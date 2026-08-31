@@ -36,7 +36,7 @@ class RefStockRequestController extends Controller
     /**
      * Show form to submit new stock request on behalf of a client.
      */
-    public function create()
+    public function create(Request $request)
     {
         $refUser = Auth::user();
         $clients = $refUser->assignedClients()->where('status', User::STATUS_APPROVED)->get();
@@ -44,9 +44,10 @@ class RefStockRequestController extends Controller
             $clients = User::where('role', User::ROLE_CLIENT)->whereIn('status', [User::STATUS_APPROVED, User::STATUS_ACTIVE])->get();
         }
 
+        $selectedClientId = $request->input('client_id', session('active_client_id'));
         $products = Product::where('status', 'active')->get();
 
-        return view('ref.stock-requests.create', compact('clients', 'products'));
+        return view('ref.stock-requests.create', compact('clients', 'products', 'selectedClientId'));
     }
 
     /**
@@ -61,9 +62,16 @@ class RefStockRequestController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
+        $client = User::findOrFail($request->client_id);
+        if (! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
+            return redirect()->back()
+                ->withErrors(['client_id' => 'Stock requests can only be created for client accounts. Ref and Admin accounts cannot be recipients.'])
+                ->withInput();
+        }
+
         $stockRequest = StockRequest::create([
             'request_number' => StockRequest::generateRequestNumber(),
-            'client_id' => $request->client_id,
+            'client_id' => $client->id,
             'product_id' => $request->product_id,
             'requested_quantity' => $request->requested_quantity,
             'notes' => $request->notes ? "[Submitted by Ref: " . Auth::user()->name . "] " . $request->notes : "Submitted by Ref: " . Auth::user()->name,
@@ -82,7 +90,12 @@ class RefStockRequestController extends Controller
             \Illuminate\Support\Facades\Log::error("Failed sending stock request notification for #{$stockRequest->request_number}: " . $e->getMessage());
         }
 
-        flash_message('Stock request submitted successfully to Admin for approval.', 'success');
+        flash_message("Stock request #{$stockRequest->request_number} submitted successfully to Admin for approval.", 'success');
+
+        if ($request->input('source') === 'dashboard' || $request->has('from_dashboard')) {
+            return redirect()->route('ref.dashboard', ['client_id' => $client->id])
+                ->with('success', "Stock request #{$stockRequest->request_number} submitted to Admin successfully!");
+        }
 
         return redirect()->route('ref.stock-requests.index');
     }

@@ -26,7 +26,7 @@
                     <select id="client_id" name="client_id" required class="auth-input block w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:bg-white">
                         <option value="" disabled selected>Choose a client from portfolio</option>
                         @foreach($clients as $client)
-                            <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                            <option value="{{ $client->id }}" {{ (old('client_id') == $client->id || (isset($selectedClientId) && $selectedClientId == $client->id)) ? 'selected' : '' }}>
                                 {{ $client->business_name ?? $client->name }} ({{ $client->district }})
                             </option>
                         @endforeach
@@ -40,10 +40,10 @@
                 <div>
                     <label for="product_id" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Select Product *</label>
                     <select id="product_id" name="product_id" required class="auth-input block w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:bg-white">
-                        <option value="" disabled selected>Choose a product item</option>
+                        <option value="" disabled {{ old('product_id') ? '' : 'selected' }}>Choose a product item</option>
                         @foreach($products as $product)
                             <option value="{{ $product->id }}" {{ old('product_id') == $product->id ? 'selected' : '' }}>
-                                {{ $product->name }} &mdash; Stock: {{ $product->stock }} (SKU: {{ $product->sku }})
+                                {{ $product->name }} &mdash; Stock: {{ $product->stock_quantity ?? $product->stock }} (SKU: {{ $product->sku }})
                             </option>
                         @endforeach
                     </select>

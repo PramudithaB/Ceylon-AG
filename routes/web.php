@@ -113,6 +113,10 @@ Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(f
     Route::post('/workspace/client/{client}/notes', [RefClientCrmController::class, 'storeNote'])->name('ref.workspace.notes.store');
     Route::get('/workspace/client/{client}/print', [RefClientCrmController::class, 'printSummary'])->name('ref.workspace.client.print');
 
+    // Quick Active Client Selection Switcher
+    Route::post('/select-client', [RefDashboardController::class, 'selectClient'])->name('ref.client.select');
+    Route::post('/clear-client', [RefDashboardController::class, 'clearClient'])->name('ref.client.clear');
+
     // Assigned Clients
     Route::get('/clients', [RefClientController::class, 'index'])->name('ref.clients.index');
     Route::get('/clients/{client}', [RefClientController::class, 'show'])->name('ref.clients.show');
@@ -125,12 +129,16 @@ Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(f
     Route::get('/stock-requests/create', [RefStockRequestController::class, 'create'])->name('ref.stock-requests.create');
     Route::post('/stock-requests', [RefStockRequestController::class, 'store'])->name('ref.stock-requests.store');
 
-    // Sales history & reports
+    // Sales creation, history & reports
     Route::get('/sales', [RefSalesController::class, 'index'])->name('ref.sales.index');
+    Route::get('/sales/create', [RefSalesController::class, 'create'])->name('ref.sales.create');
+    Route::post('/sales', [RefSalesController::class, 'store'])->name('ref.sales.store');
     Route::get('/sales/reports', [RefSalesController::class, 'reports'])->name('ref.sales.reports');
 
-    // Payment status tracking
+    // Payment collection & status tracking
     Route::get('/payments', [RefPaymentController::class, 'index'])->name('ref.payments.index');
+    Route::get('/payments/create', [RefPaymentController::class, 'create'])->name('ref.payments.create');
+    Route::post('/payments', [RefPaymentController::class, 'store'])->name('ref.payments.store');
     Route::get('/payments/{payment}', [RefPaymentController::class, 'show'])->name('ref.payments.show');
 
     // Notifications

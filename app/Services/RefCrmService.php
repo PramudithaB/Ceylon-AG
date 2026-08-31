@@ -482,6 +482,10 @@ class RefCrmService
      */
     public function submitClientStockRequest(User $client, User $refUser, array $data): StockRequest
     {
+        if (! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
+            throw new \InvalidArgumentException('Stock requests can only be submitted for client accounts. Ref and Admin users cannot receive stock requests.');
+        }
+
         return DB::transaction(function () use ($client, $refUser, $data) {
             $attachmentPath = null;
             if (isset($data['attachment']) && $data['attachment']->isValid()) {

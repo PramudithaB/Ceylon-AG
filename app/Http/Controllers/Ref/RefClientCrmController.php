@@ -30,6 +30,10 @@ class RefClientCrmController extends Controller
         if (! $user || (! $user->isRef() && ! $user->isAdmin())) {
             abort(403, 'Unauthorized access to client workspace.');
         }
+
+        if (! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
+            abort(403, 'Invalid recipient. Only client accounts can receive stock requests or be managed by a Ref.');
+        }
     }
 
     /**

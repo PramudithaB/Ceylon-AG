@@ -59,11 +59,13 @@ class StoreProductAssignmentRequest extends FormRequest
                 }
             }
 
-            // Ensure selected client is approved
+            // Ensure selected client has client role and is approved
             $clientId = $this->input('client_id');
             if ($clientId) {
                 $client = User::find($clientId);
-                if (! $client || ! $client->isApproved()) {
+                if (! $client || ! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
+                    $validator->errors()->add('client_id', 'Products can only be assigned to client accounts. Ref and Admin users cannot receive product assignments.');
+                } elseif (! $client->isApproved()) {
                     $validator->errors()->add('client_id', 'Product can only be assigned to approved clients.');
                 }
             }

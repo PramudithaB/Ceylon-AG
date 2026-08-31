@@ -54,7 +54,13 @@ class ProductAssignmentService
             $productId = $data['product_id'];
             $quantity = (int) $data['quantity'];
 
-            // 1. Lock product row for update to prevent race conditions
+            // 1. Validate recipient is a Client
+            $client = User::findOrFail($data['client_id']);
+            if (! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
+                throw new \InvalidArgumentException('Only users with the client role can receive product assignments.');
+            }
+
+            // 2. Lock product row for update to prevent race conditions
             $product = Product::lockForUpdate()->findOrFail($productId);
 
             // 2. Double check warehouse stock availability

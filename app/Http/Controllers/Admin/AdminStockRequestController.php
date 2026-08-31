@@ -47,6 +47,11 @@ class AdminStockRequestController extends Controller
                     throw new \Exception('This stock request has already been reviewed or assigned.');
                 }
 
+                // Verify recipient is a valid client
+                if (! $lockedRequest->client || ! ($lockedRequest->client->isClient() || $lockedRequest->client->role === \App\Models\User::ROLE_CLIENT || $lockedRequest->client->hasRole('Client'))) {
+                    throw new \Exception("Invalid recipient. Stock requests can only be approved and assigned for client accounts.");
+                }
+
                 // Lock product row for update to prevent race conditions in warehouse inventory
                 $product = Product::lockForUpdate()->findOrFail($lockedRequest->product_id);
 
