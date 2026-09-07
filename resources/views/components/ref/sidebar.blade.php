@@ -3,14 +3,8 @@
     <!-- Sidebar Header / Logo -->
     <div class="h-20 flex items-center justify-between px-6 border-b border-emerald-100/60">
         <a href="{{ route('ref.dashboard') }}" class="flex items-center gap-3 group">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1E8E3E] to-[#6CC24A] p-0.5 shadow-md shadow-emerald-700/20 group-hover:scale-105 transition-transform duration-300">
-                <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center overflow-hidden">
-                    @if(file_exists(public_path('images/logo.png')))
-                        <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-7 h-7 object-contain">
-                    @else
-                        <svg class="w-5 h-5 text-[#1E8E3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    @endif
-                </div>
+            <div class="w-11 h-11 rounded-2xl bg-white p-1 shadow-md shadow-emerald-700/15 group-hover:scale-105 transition-transform duration-300 border border-emerald-100 flex items-center justify-center overflow-hidden shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-full h-full object-contain">
             </div>
             <div class="flex flex-col">
                 <span class="text-base font-extrabold tracking-tight text-gray-900 group-hover:text-[#1E8E3E] transition-colors">Ceylon AG</span>

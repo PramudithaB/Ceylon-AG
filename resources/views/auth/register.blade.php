@@ -3,14 +3,8 @@
         
         <!-- Top Centered Logo & Header -->
         <div class="flex flex-col items-center justify-center text-center mb-8">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#1E8E3E] to-[#6CC24A] p-0.5 shadow-lg shadow-emerald-700/20 mb-3 hover:scale-105 transition-transform duration-300">
-                <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center overflow-hidden">
-                    @if(file_exists(public_path('images/logo.png')))
-                        <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-9 h-9 object-contain">
-                    @else
-                        <svg class="w-7 h-7 text-[#1E8E3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    @endif
-                </div>
+            <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-white p-2 shadow-xl shadow-emerald-700/10 mb-3 hover:scale-105 transition-transform duration-300 border border-emerald-100/80 flex items-center justify-center overflow-hidden shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-full h-full object-contain">
             </div>
             
             <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
@@ -160,42 +154,48 @@
                 <x-input-error :messages="$errors->get('address')" class="mt-1 text-[11px] text-rose-600 font-semibold" />
             </div>
 
-            <!-- District & Province -->
+            <!-- Province & District (Dependent Dropdown) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- District -->
-                <div>
-                    <label for="district" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                        District
-                    </label>
-                    <select id="district" 
-                        name="district" 
-                        required 
-                        class="auth-input block w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:bg-white"
-                    >
-                        <option value="" disabled selected>Select District</option>
-                        @foreach($districts as $district)
-                            <option value="{{ $district }}" {{ old('district') == $district ? 'selected' : '' }}>{{ $district }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('district')" class="mt-1 text-[11px] text-rose-600 font-semibold" />
-                </div>
-
                 <!-- Province -->
                 <div>
                     <label for="province" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                        Province
+                        Province *
                     </label>
                     <select id="province" 
                         name="province" 
                         required 
+                        onchange="handleProvinceChange(this.value)"
                         class="auth-input block w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:bg-white"
                     >
-                        <option value="" disabled selected>Select Province</option>
+                        <option value="" disabled {{ old('province') ? '' : 'selected' }}>Select Province</option>
                         @foreach($provinces as $province)
                             <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>{{ $province }}</option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('province')" class="mt-1 text-[11px] text-rose-600 font-semibold" />
+                </div>
+
+                <!-- District (Dependent on Province) -->
+                <div>
+                    <label for="district" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        District *
+                    </label>
+                    <select id="district" 
+                        name="district" 
+                        required 
+                        {{ old('province') ? '' : 'disabled' }}
+                        class="auth-input block w-full px-4 py-3 bg-white/70 border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                    >
+                        <option value="" disabled {{ old('district') ? '' : 'selected' }}>
+                            {{ old('province') ? 'Select District' : 'Select Province First' }}
+                        </option>
+                        @if(old('province'))
+                            @foreach(\App\Support\Locations::getDistrictsByProvince(old('province')) as $d)
+                                <option value="{{ $d }}" {{ old('district') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    <x-input-error :messages="$errors->get('district')" class="mt-1 text-[11px] text-rose-600 font-semibold" />
                 </div>
             </div>
 
@@ -251,6 +251,45 @@
                 </button>
             </div>
         </form>
+
+        <script>
+            const provinceDistrictsMap = @json(\App\Support\Locations::getHierarchy());
+
+            function handleProvinceChange(provinceName) {
+                const districtSelect = document.getElementById('district');
+                if (!districtSelect) return;
+
+                districtSelect.innerHTML = '';
+
+                const districts = provinceDistrictsMap[provinceName] || [];
+
+                if (districts.length > 0) {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select District';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    districtSelect.appendChild(defaultOption);
+
+                    districts.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        districtSelect.appendChild(opt);
+                    });
+
+                    districtSelect.disabled = false;
+                } else {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select Province First';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    districtSelect.appendChild(defaultOption);
+                    districtSelect.disabled = true;
+                }
+            }
+        </script>
 
     </div>
 </x-guest-layout>

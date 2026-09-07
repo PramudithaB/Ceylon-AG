@@ -4,8 +4,8 @@
         <!-- Brand Header -->
         <div class="flex items-center justify-between h-16 px-6 bg-slate-950/60 border-b border-slate-800">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 group">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                    C
+                <div class="w-10 h-10 rounded-xl bg-white p-1 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform flex items-center justify-center overflow-hidden shrink-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Logo" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <span class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">Ceylon AG</span>

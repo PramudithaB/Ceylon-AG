@@ -47,6 +47,8 @@ class ClientManagementController extends Controller
 
         $clients = $this->clientService->getClients($filters, 15);
         $counts = $this->clientService->getClientCounts();
+        $refs = $this->getActiveRefs();
+        $allClients = $this->getAllSelectableClients();
 
         return view('admin.clients.index', [
             'clients' => $clients,
@@ -54,6 +56,8 @@ class ClientManagementController extends Controller
             'counts' => $counts,
             'districts' => $this->districts,
             'provinces' => $this->provinces,
+            'refs' => $refs,
+            'allClients' => $allClients,
         ]);
     }
 
@@ -63,9 +67,11 @@ class ClientManagementController extends Controller
     public function show(User $client): View
     {
         Gate::authorize('viewAny', User::class);
+        $refs = $this->getActiveRefs();
 
         return view('admin.clients.show', [
-            'client' => $client,
+            'client' => $client->load('salesRep'),
+            'refs' => $refs,
         ]);
     }
 
@@ -75,10 +81,12 @@ class ClientManagementController extends Controller
     public function create(): View
     {
         Gate::authorize('viewAny', User::class);
+        $refs = $this->getActiveRefs();
 
         return view('admin.clients.create', [
             'provinces' => $this->provinces,
             'districts' => $this->districts,
+            'refs' => $refs,
         ]);
     }
 
@@ -103,12 +111,92 @@ class ClientManagementController extends Controller
     public function edit(User $client): View
     {
         Gate::authorize('update', $client);
+        $refs = $this->getActiveRefs();
 
         return view('admin.clients.edit', [
-            'client' => $client,
+            'client' => $client->load('salesRep'),
             'provinces' => $this->provinces,
             'districts' => $this->districts,
+            'refs' => $refs,
         ]);
+    }
+
+    /**
+     * Assign / Reassign a Client to a Sales Representative (Ref).
+     */
+    public function assignRef(Request $request, ?User $client = null): RedirectResponse
+    {
+        $clientId = $client ? $client->id : ($request->input('client_id') ?? $request->route('client'));
+        $targetClient = User::findOrFail($clientId);
+
+        Gate::authorize('update', $targetClient);
+
+        // Security check: Target MUST be strictly a Client
+        if ($targetClient->role !== User::ROLE_CLIENT || $targetClient->isAdmin() || $targetClient->isRef() || $targetClient->hasAnyRole(['Admin', 'Super Admin', 'Ref', 'admin', 'ref'])) {
+            return redirect()->back()
+                ->withErrors(['client_id' => 'Only users with the client role can be assigned. Admin and Ref users cannot be assigned as clients.'])
+                ->withInput();
+        }
+
+        // Validate ref_id
+        $request->validate([
+            'ref_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $refId = $request->input('ref_id');
+
+        if ($refId) {
+            $refUser = User::findOrFail($refId);
+
+            // Security check: Target MUST be strictly a Ref
+            if ($refUser->role !== User::ROLE_REF || $refUser->isAdmin() || $refUser->isClient() || $refUser->hasAnyRole(['Admin', 'Super Admin', 'admin', 'Client', 'client'])) {
+                return redirect()->back()
+                    ->withErrors(['ref_id' => 'The selected recipient must be a user with the Ref role. Admins and Clients cannot be selected as Refs.'])
+                    ->withInput();
+            }
+
+            $targetClient->ref_id = $refUser->id;
+            $targetClient->save();
+
+            flash_message("Client '{$targetClient->full_name}' has been successfully assigned to Ref '{$refUser->full_name}'.", 'success');
+        } else {
+            // Unassign
+            $targetClient->ref_id = null;
+            $targetClient->save();
+
+            flash_message("Client '{$targetClient->full_name}' has been unassigned from any Ref.", 'info');
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Retrieve all active Ref users for assignment selectors.
+     */
+    protected function getActiveRefs()
+    {
+        return User::where('role', User::ROLE_REF)
+            ->whereNotIn('role', [User::ROLE_ADMIN, User::ROLE_CLIENT])
+            ->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', ['Admin', 'Super Admin', 'admin']);
+            })
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
+    /**
+     * Retrieve all selectable clients for the admin assignment modal.
+     */
+    protected function getAllSelectableClients()
+    {
+        return User::where('role', User::ROLE_CLIENT)
+            ->whereNotIn('role', [User::ROLE_ADMIN, User::ROLE_REF])
+            ->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', ['Admin', 'Super Admin', 'Ref', 'ref', 'admin']);
+            })
+            ->with('salesRep')
+            ->orderBy('name', 'asc')
+            ->get();
     }
 
     /**

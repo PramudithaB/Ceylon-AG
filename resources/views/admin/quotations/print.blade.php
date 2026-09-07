@@ -55,13 +55,7 @@
         <!-- Header -->
         <div class="flex justify-between items-start border-b-2 border-emerald-700 pb-6">
             <div class="flex items-center gap-4">
-                @if($settings->logo_path && file_exists(public_path($settings->logo_path)))
-                    <img src="{{ asset($settings->logo_path) }}" alt="Company Logo" class="h-16 w-auto object-contain">
-                @else
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white font-black text-xl shadow-md">
-                        CAG
-                    </div>
-                @endif
+                <img src="{{ asset($settings->logo_path && file_exists(public_path($settings->logo_path)) ? $settings->logo_path : 'images/logo.png') }}" alt="Ceylon AG Logo" class="h-16 w-auto object-contain">
                 <div>
                     <h1 class="text-xl font-black text-emerald-950 uppercase tracking-tight">{{ $settings->company_name }}</h1>
                     <p class="text-[11px] text-slate-600 leading-relaxed">

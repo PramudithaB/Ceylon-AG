@@ -5,8 +5,9 @@
             <div class="flex">
                     <!-- Logo -->
                     <div class="shrink-0 flex items-center">
-                        <a href="{{ auth()->user()?->isAdmin() || auth()->user()?->hasRole('Super Admin') || auth()->user()?->hasRole('Admin') ? route('admin.dashboard') : (auth()->user()?->isRef() || auth()->user()?->hasRole('Ref') ? route('ref.dashboard') : route('dashboard')) }}">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <a href="{{ auth()->user()?->isAdmin() || auth()->user()?->hasRole('Super Admin') || auth()->user()?->hasRole('Admin') ? route('admin.dashboard') : (auth()->user()?->isRef() || auth()->user()?->hasRole('Ref') ? route('ref.dashboard') : route('dashboard')) }}" class="flex items-center gap-3 group">
+                            <x-application-logo class="block h-10 w-10 object-contain rounded-full shadow-xs" />
+                            <span class="font-extrabold text-base tracking-tight text-gray-900 group-hover:text-emerald-600 transition-colors">Ceylon AG</span>
                         </a>
                     </div>
 

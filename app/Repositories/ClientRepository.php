@@ -124,10 +124,9 @@ class ClientRepository implements ClientRepositoryInterface
      */
     public function getAllApproved(): \Illuminate\Database\Eloquent\Collection
     {
-        return User::where(function ($q) {
-            $q->where('role', User::ROLE_CLIENT)
-              ->orWhereHas('roles', fn ($r) => $r->where('name', 'Client'));
-        })
+        return User::where('role', User::ROLE_CLIENT)
+            ->whereNotIn('role', [User::ROLE_ADMIN, User::ROLE_REF])
+            ->whereDoesntHave('roles', fn ($r) => $r->whereIn('name', ['Admin', 'Super Admin', 'Ref', 'ref', 'admin']))
             ->whereIn('status', [User::STATUS_APPROVED, User::STATUS_ACTIVE])
             ->orderBy('name')
             ->get();

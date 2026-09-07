@@ -41,8 +41,12 @@
             <p class="text-xs text-gray-500 font-medium">Select a client below to perform stock requests, sales, and payments.</p>
         </div>
         
-        <div class="hidden sm:flex items-center gap-2">
-            <span class="text-xs font-bold text-gray-500 bg-white px-3 py-1.5 rounded-xl border border-emerald-100 shadow-xs">
+        <div class="flex items-center gap-2">
+            <a href="{{ route('ref.clients.create') }}" class="touch-btn px-3.5 py-2 bg-[#1E8E3E] hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                <span>Register Client</span>
+            </a>
+            <span class="hidden sm:inline-block text-xs font-bold text-gray-500 bg-white px-3 py-2 rounded-xl border border-emerald-100 shadow-xs">
                 {{ $clients->count() }} Portfolio Clients
             </span>
         </div>
@@ -73,19 +77,19 @@
                 </div>
             </div>
         @elseif($selectedClient)
-            <!-- ACTIVE SELECTED CLIENT BANNER -->
-            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-50/50 to-white border-2 border-emerald-500/30 relative overflow-hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-start sm:items-center gap-3.5">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#1E8E3E] to-[#6CC24A] text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+            <!-- ACTIVE CLIENT DETAILS BANNER -->
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-50 to-white border border-emerald-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-[#1E8E3E] text-white flex items-center justify-center font-black text-lg shadow-sm">
                             {{ substr($selectedClient->business_name ?? $selectedClient->name, 0, 1) }}
                         </div>
                         <div>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="px-2 py-0.5 bg-emerald-600 text-white font-extrabold text-[9px] uppercase rounded-full">
-                                    Active Client
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-[#1E8E3E] font-black text-[10px] uppercase tracking-wider">
+                                    Active Workspace
                                 </span>
-                                <span class="text-xs font-bold text-gray-500">{{ $selectedClient->district ?? 'Sri Lanka' }}</span>
+                                <span class="text-xs text-gray-400 font-bold">&bull; {{ $selectedClient->district ?? 'Sri Lanka' }}</span>
                             </div>
                             <h2 class="text-base sm:text-lg font-black text-gray-900 mt-0.5">{{ $selectedClient->business_name ?? $selectedClient->name }}</h2>
                             <p class="text-xs text-gray-600 font-medium">
@@ -132,11 +136,15 @@
                     <h3 class="text-sm font-black text-gray-900">Please select a client.</h3>
                     <p class="text-xs text-gray-500 font-medium mt-0.5">Select a client from your portfolio to enable quick stock requests, sales, and payments.</p>
                 </div>
-                <div>
-                    <button type="button" onclick="openClientModal()" class="touch-btn px-6 py-3 bg-[#1E8E3E] hover:bg-emerald-700 text-white font-extrabold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 mx-auto">
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <button type="button" onclick="openClientModal()" class="touch-btn px-6 py-3 bg-[#1E8E3E] hover:bg-emerald-700 text-white font-extrabold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <span>Select Client</span>
                     </button>
+                    <a href="{{ route('ref.clients.create') }}" class="touch-btn px-6 py-3 bg-white hover:bg-emerald-50 text-gray-800 hover:text-[#1E8E3E] font-extrabold text-xs rounded-2xl border border-gray-200 shadow-xs transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 text-[#1E8E3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                        <span>Register Client</span>
+                    </a>
                 </div>
             </div>
         @endif
@@ -151,30 +159,46 @@
             @endif
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             
-            <!-- 1. STOCK REQUEST -->
+            <!-- 1. REGISTER CLIENT -->
+            <a 
+                href="{{ route('ref.clients.create') }}" 
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-emerald-300"
+            >
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#1E8E3E] group-hover:bg-[#1E8E3E] group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xs font-black text-gray-900 block group-hover:text-[#1E8E3E] transition-colors">Register Client</span>
+                    <span class="text-[10px] text-gray-400 font-semibold">Onboard shop</span>
+                </div>
+            </a>
+
+            <!-- 2. STOCK REQUEST -->
             <button 
                 type="button" 
                 onclick="{{ $selectedClient ? 'openStockModal()' : 'openClientModal()' }}" 
-                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px]"
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-emerald-300"
             >
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#1E8E3E] group-hover:bg-[#1E8E3E] group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
                 </div>
                 <div>
-                    <span class="text-xs font-black text-gray-900 block group-hover:text-[#1E8E3E] transition-colors">Create Stock Request</span>
-                    <span class="text-[10px] text-gray-400 font-semibold">Request for client</span>
+                    <span class="text-xs font-black text-gray-900 block group-hover:text-indigo-600 transition-colors">Create Stock Request</span>
+                    <span class="text-[10px] text-gray-400 font-semibold">Stock Request</span>
                 </div>
             </button>
 
-            <!-- 2. SALES -->
+            <!-- 3. SALES -->
             <button 
                 type="button" 
                 onclick="{{ $selectedClient ? 'openSalesModal()' : 'openClientModal()' }}" 
-                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px]"
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-blue-300"
             >
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,15 +207,15 @@
                 </div>
                 <div>
                     <span class="text-xs font-black text-gray-900 block group-hover:text-blue-600 transition-colors">Record Sale</span>
-                    <span class="text-[10px] text-gray-400 font-semibold">Sell client stock</span>
+                    <span class="text-[10px] text-gray-400 font-semibold">Sales</span>
                 </div>
             </button>
 
-            <!-- 3. PAYMENTS -->
+            <!-- 4. PAYMENTS -->
             <button 
                 type="button" 
                 onclick="{{ $selectedClient ? 'openPaymentModal()' : 'openClientModal()' }}" 
-                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px]"
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-amber-300"
             >
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,14 +224,31 @@
                 </div>
                 <div>
                     <span class="text-xs font-black text-gray-900 block group-hover:text-amber-600 transition-colors">Collect Payment</span>
-                    <span class="text-[10px] text-gray-400 font-semibold">Submit payment</span>
+                    <span class="text-[10px] text-gray-400 font-semibold">Payments</span>
                 </div>
             </button>
 
-            <!-- 4. REPORTS -->
+            <!-- 5. PRODUCT ASSIGNMENT -->
+            <button 
+                type="button" 
+                onclick="{{ $selectedClient ? 'openAssignmentModal()' : 'openClientModal()' }}" 
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-teal-300"
+            >
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xs font-black text-gray-900 block group-hover:text-teal-600 transition-colors">Product Assignment</span>
+                    <span class="text-[10px] text-gray-400 font-semibold">Assign stock to client</span>
+                </div>
+            </button>
+
+            <!-- 6. REPORTS -->
             <a 
                 href="{{ route('ref.sales.reports') }}" 
-                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px]"
+                class="ref-card rounded-2xl p-4 text-left transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer group flex flex-col justify-between min-h-[105px] border border-gray-100 hover:border-purple-300"
             >
                 <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white flex items-center justify-center transition-colors shadow-xs mb-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +276,7 @@
         </div>
         <div class="ref-card rounded-2xl p-3 text-center bg-white border border-rose-100">
             <span class="text-[10px] font-bold text-rose-700 uppercase block">Rejected</span>
-            <span class="text-sm font-extrabold text-rose-800">0</span>
+            <span class="text-sm font-extrabold text-rose-800">{{ $statusCounts['rejected_count'] ?? 0 }}</span>
         </div>
     </div>
 
@@ -326,9 +367,15 @@
                 <h3 class="text-base font-black text-gray-900">Select Client</h3>
                 <p class="text-xs text-gray-400 font-medium">Pick a client to set as active for stock, sales & payments</p>
             </div>
-            <button type="button" onclick="closeClientModal()" class="p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('ref.clients.create') }}" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-[#1E8E3E] font-black text-xs rounded-xl border border-emerald-200 transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Register</span>
+                </a>
+                <button type="button" onclick="closeClientModal()" class="p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
         </div>
 
         <!-- Search Input -->
@@ -580,6 +627,65 @@
 </div>
 
 <!-- ==================================================== -->
+<!-- 5. QUICK PRODUCT ASSIGNMENT MODAL (PRE-FILLED ACTIVE CLIENT) -->
+<!-- ==================================================== -->
+<div id="assignment-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col shadow-2xl animate-slideUp">
+        
+        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black text-gray-900">Assign Product to Client</h3>
+                    <p class="text-[11px] text-gray-400 font-medium">Recipient: <strong class="text-gray-800">{{ $selectedClient->business_name ?? $selectedClient->name ?? 'Client' }}</strong></p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAssignmentModal()" class="p-2 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <form action="{{ route('ref.product-assignments.store') }}" method="POST" class="p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+            @csrf
+            <input type="hidden" name="client_id" value="{{ $selectedClient->id ?? '' }}" required>
+
+            <!-- Product Select -->
+            <div>
+                <label for="assign_product_id" class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1.5">Product *</label>
+                <select id="assign_product_id" name="product_id" required class="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-xs font-bold text-gray-900 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 shadow-xs">
+                    <option value="">-- Choose Warehouse Product --</option>
+                    @foreach($products as $p)
+                        <option value="{{ $p->id }}" {{ $p->stock_quantity <= 0 ? 'disabled' : '' }}>
+                            {{ $p->name }} (Warehouse Stock: {{ $p->stock_quantity }} &bull; Price: LKR {{ number_format($p->selling_price, 2) }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Quantity -->
+            <div>
+                <label for="assign_qty" class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1.5">Quantity to Assign *</label>
+                <input type="number" id="assign_qty" name="quantity" min="1" value="5" required class="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-xs font-bold text-gray-900 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 shadow-xs">
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label for="assign_notes" class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1.5">Reason / Notes <span class="text-gray-400 font-normal lowercase">(optional)</span></label>
+                <input type="text" id="assign_notes" name="notes" placeholder="e.g. Field allocation" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl text-xs font-medium text-gray-900 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 shadow-xs">
+            </div>
+
+            <button type="submit" class="touch-btn w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>Assign Product to Client</span>
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<!-- ==================================================== -->
 <!-- JAVASCRIPT CONTROLLERS FOR MOBILE MODALS & SEARCH -->
 <!-- ==================================================== -->
 <script>
@@ -631,6 +737,14 @@
 
     function closePaymentModal() {
         document.getElementById('payment-modal').classList.add('hidden');
+    }
+
+    function openAssignmentModal() {
+        document.getElementById('assignment-modal').classList.remove('hidden');
+    }
+
+    function closeAssignmentModal() {
+        document.getElementById('assignment-modal').classList.add('hidden');
     }
 </script>
 @endsection

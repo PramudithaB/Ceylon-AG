@@ -54,10 +54,10 @@ class ProductAssignmentService
             $productId = $data['product_id'];
             $quantity = (int) $data['quantity'];
 
-            // 1. Validate recipient is a Client
+            // 1. Validate recipient is strictly a Client (Never Ref, Admin, or Super Admin)
             $client = User::findOrFail($data['client_id']);
-            if (! ($client->isClient() || $client->role === User::ROLE_CLIENT || $client->hasRole('Client'))) {
-                throw new \InvalidArgumentException('Only users with the client role can receive product assignments.');
+            if ($client->role !== User::ROLE_CLIENT || $client->isAdmin() || $client->isRef() || $client->hasAnyRole(['Admin', 'Super Admin', 'Ref'])) {
+                throw new \InvalidArgumentException('Only users with the client role can receive product assignments. Ref and Admin users cannot receive product assignments.');
             }
 
             // 2. Lock product row for update to prevent race conditions

@@ -104,7 +104,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 text-gray-700">
-                    @foreach($product_stock as $ps)
+                    @forelse($product_stock as $ps)
                         <tr>
                             <td class="p-3 font-bold text-gray-900">{{ $ps->product->name ?? 'Product' }}</td>
                             <td class="p-3 text-center font-bold">{{ $ps->assigned_qty }}</td>
@@ -113,7 +113,11 @@
                             <td class="p-3 text-right">LKR {{ number_format($ps->dealer_price, 2) }}</td>
                             <td class="p-3 text-right font-bold">LKR {{ number_format($ps->stock_value, 2) }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-gray-400 font-medium">No product inventory assigned to this client yet.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -133,7 +137,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 text-gray-700">
-                    @foreach($payment_history->take(10) as $pay)
+                    @forelse($payment_history->take(10) as $pay)
                         <tr>
                             <td class="p-3 font-bold text-gray-900">{{ $pay->payment_number }}</td>
                             <td class="p-3">{{ \Carbon\Carbon::parse($pay->payment_date)->format('M d, Y') }}</td>
@@ -142,7 +146,11 @@
                             <td class="p-3 text-right font-extrabold text-[#1E8E3E]">LKR {{ number_format((float)$pay->amount, 2) }}</td>
                             <td class="p-3 font-bold uppercase text-[10px]">{{ $pay->status }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-gray-400 font-medium">No payment records found for this client.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

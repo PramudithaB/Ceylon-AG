@@ -51,6 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'status',
         'role',
         'ref_id',
+        'email_verified_at',
         'profile_photo_path',
     ];
 
@@ -166,7 +167,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function assignedClients()
     {
-        return $this->hasMany(User::class, 'ref_id');
+        return $this->hasMany(User::class, 'ref_id')->where('role', self::ROLE_CLIENT);
     }
 
     /**

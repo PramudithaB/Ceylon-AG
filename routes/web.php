@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminQuotationController;
 use App\Http\Controllers\Admin\AdminSalesController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Ref\RefClientCrmController;
 use App\Http\Controllers\Ref\RefDashboardController;
 use App\Http\Controllers\Ref\RefNotificationController;
 use App\Http\Controllers\Ref\RefPaymentController;
+use App\Http\Controllers\Ref\RefProductAssignmentController;
 use App\Http\Controllers\Ref\RefProductController;
 use App\Http\Controllers\Ref\RefProfileController;
 use App\Http\Controllers\Ref\RefSalesController;
@@ -117,9 +119,14 @@ Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(f
     Route::post('/select-client', [RefDashboardController::class, 'selectClient'])->name('ref.client.select');
     Route::post('/clear-client', [RefDashboardController::class, 'clearClient'])->name('ref.client.clear');
 
-    // Assigned Clients
+    // Assigned Clients & Registration
     Route::get('/clients', [RefClientController::class, 'index'])->name('ref.clients.index');
+    Route::get('/clients/create', [RefClientController::class, 'create'])->name('ref.clients.create');
+    Route::post('/clients', [RefClientController::class, 'store'])->name('ref.clients.store');
     Route::get('/clients/{client}', [RefClientController::class, 'show'])->name('ref.clients.show');
+
+    // Product Assignment to Client
+    Route::post('/product-assignments', [RefProductAssignmentController::class, 'store'])->name('ref.product-assignments.store');
 
     // Assigned Products & Availability
     Route::get('/products', [RefProductController::class, 'index'])->name('ref.products.index');
@@ -156,9 +163,7 @@ Route::prefix('ref')->middleware(['auth', 'approved', 'role.user:ref'])->group(f
 
 // Admin Dashboard, Client, Category, Product, Assignment, Stock Request, Sales, Payment & Report Routes
 Route::prefix('admin')->middleware(['auth', 'approved', 'role.user:admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Admin Stock Requests Review
     Route::prefix('stock-requests')->group(function () {
@@ -187,6 +192,8 @@ Route::prefix('admin')->middleware(['auth', 'approved', 'role.user:admin'])->gro
 
     // Complete Client Management Module Routes
     Route::get('/clients', [ClientManagementController::class, 'index'])->name('admin.clients.index');
+    Route::post('/clients/assign-ref', [ClientManagementController::class, 'assignRef'])->name('admin.clients.assign-ref');
+    Route::post('/clients/{client}/assign-ref', [ClientManagementController::class, 'assignRef'])->name('admin.clients.client-assign-ref');
     Route::get('/clients/create', [ClientManagementController::class, 'create'])->name('admin.clients.create');
     Route::post('/clients', [ClientManagementController::class, 'store'])->name('admin.clients.store');
     Route::get('/clients/{client}', [ClientManagementController::class, 'show'])->name('admin.clients.show');
@@ -241,26 +248,7 @@ Route::prefix('admin')->middleware(['auth', 'approved', 'role.user:admin'])->gro
         Route::post('/{quotation}/email', [AdminQuotationController::class, 'sendEmail'])->name('admin.quotations.email');
         Route::post('/{quotation}/duplicate', [AdminQuotationController::class, 'duplicate'])->name('admin.quotations.duplicate');
     });
-
-    Route::get('/test-flash/{type}', function ($type) {
-        $messages = [
-            'success' => 'System configuration successfully updated!',
-            'error' => 'Failed to synchronize repository changes.',
-            'warning' => 'Storage disk quota reaching limit (85%).',
-            'info' => 'New updates are available for Ceylon AG.'
-        ];
-        
-        $msg = $messages[$type] ?? 'Test notification triggered.';
-        flash_message($msg, $type);
-        
-        return redirect()->route('admin.dashboard');
-    })->name('admin.test-flash');
 });
-
-// Error Page Previews
-Route::get('/test-error/403', fn() => response()->view('errors.403', [], 403));
-Route::get('/test-error/404', fn() => response()->view('errors.404', [], 404));
-Route::get('/test-error/500', fn() => response()->view('errors.500', [], 500));
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

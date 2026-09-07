@@ -29,10 +29,13 @@
     <button onclick="window.print()" class="btn-print">Print / Save PDF</button>
 
     <div class="header">
-        <div>
-            <div class="brand">Ceylon AG</div>
-            <div class="sub-title">Master Financial & Inventory Report</div>
-            <div class="date">Generated on {{ date('F d, Y \a\t H:i:s') }}</div>
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Logo" style="height: 52px; width: 52px; object-fit: contain; border-radius: 10px;">
+            <div>
+                <div class="brand">Ceylon AG</div>
+                <div class="sub-title">Master Financial & Inventory Report</div>
+                <div class="date">Generated on {{ date('F d, Y \a\t H:i:s') }}</div>
+            </div>
         </div>
     </div>
 

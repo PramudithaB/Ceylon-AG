@@ -83,26 +83,30 @@
                 <x-input-error :messages="$errors->get('address')" class="mt-1" />
             </div>
 
-            <!-- District, Province, Status Row -->
+            <!-- Province, District, Status Row -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <x-input-label for="district" :value="__('District')" />
-                    <select id="district" name="district" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 rounded-md shadow-sm text-xs py-2 px-3" required>
-                        @foreach($districts as $district)
-                            <option value="{{ $district }}" {{ old('district', $client->district) == $district ? 'selected' : '' }}>{{ $district }}</option>
-                        @endforeach
-                    </select>
-                    <x-input-error :messages="$errors->get('district')" class="mt-1" />
-                </div>
-
-                <div>
-                    <x-input-label for="province" :value="__('Province')" />
-                    <select id="province" name="province" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 rounded-md shadow-sm text-xs py-2 px-3" required>
+                    <x-input-label for="province" :value="__('Province *')" />
+                    <select id="province" name="province" onchange="handleAdminEditProvinceChange(this.value)" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 rounded-md shadow-sm text-xs py-2 px-3" required>
                         @foreach($provinces as $province)
                             <option value="{{ $province }}" {{ old('province', $client->province) == $province ? 'selected' : '' }}>{{ $province }}</option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('province')" class="mt-1" />
+                </div>
+
+                <div>
+                    <x-input-label for="district" :value="__('District *')" />
+                    <select id="district" name="district" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 rounded-md shadow-sm text-xs py-2 px-3" required>
+                        @php
+                            $currentProvince = old('province', $client->province);
+                            $validDistricts = \App\Support\Locations::getDistrictsByProvince($currentProvince);
+                        @endphp
+                        @foreach($validDistricts as $district)
+                            <option value="{{ $district }}" {{ old('district', $client->district) == $district ? 'selected' : '' }}>{{ $district }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('district')" class="mt-1" />
                 </div>
 
                 <div>
@@ -115,6 +119,19 @@
                         <option value="rejected" {{ old('status', $client->status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                     <x-input-error :messages="$errors->get('status')" class="mt-1" />
+                </div>
+
+                <div>
+                    <x-input-label for="ref_id" :value="__('Assigned Sales Representative (Ref)')" />
+                    <select id="ref_id" name="ref_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 rounded-md shadow-sm text-xs py-2 px-3">
+                        <option value="">-- No Assigned Ref (Unassigned) --</option>
+                        @foreach($refs as $ref)
+                            <option value="{{ $ref->id }}" {{ old('ref_id', $client->ref_id) == $ref->id ? 'selected' : '' }}>
+                                {{ $ref->full_name }} ({{ $ref->email }}{{ $ref->phone ? ' • ' . $ref->phone : '' }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('ref_id')" class="mt-1" />
                 </div>
             </div>
 
@@ -146,5 +163,33 @@
                 </x-primary-button>
             </div>
         </form>
+
+        <script>
+            const adminEditProvinceDistrictsMap = @json(\App\Support\Locations::getHierarchy());
+
+            function handleAdminEditProvinceChange(provinceName) {
+                const districtSelect = document.getElementById('district');
+                if (!districtSelect) return;
+
+                districtSelect.innerHTML = '';
+                const districts = adminEditProvinceDistrictsMap[provinceName] || [];
+
+                if (districts.length > 0) {
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Select District';
+                    defaultOption.disabled = true;
+                    defaultOption.selected = true;
+                    districtSelect.appendChild(defaultOption);
+
+                    districts.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        districtSelect.appendChild(opt);
+                    });
+                }
+            }
+        </script>
     </div>
 </x-admin-layout>

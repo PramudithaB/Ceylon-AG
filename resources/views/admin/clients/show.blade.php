@@ -134,6 +134,72 @@
             </div>
         </div>
 
+        <!-- Assigned Sales Representative (Ref) Card -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Assigned Sales Representative (Ref)</h3>
+                        <p class="text-[11px] text-slate-500">Sales Representative linked to manage this client's orders, assignments, and payments</p>
+                    </div>
+                </div>
+                <div>
+                    @if($client->salesRep)
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-1.5"></span>
+                            Assigned to {{ $client->salesRep->name }}
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+                            Unassigned
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if($client->salesRep)
+                <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-indigo-500 block">Current Representative</span>
+                        <h4 class="text-sm font-black text-slate-900 dark:text-white mt-0.5">{{ $client->salesRep->full_name }}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Phone: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $client->salesRep->phone ?? 'N/A' }}</span> &bull;
+                            Email: <span class="font-bold text-slate-700 dark:text-slate-300">{{ $client->salesRep->email }}</span>
+                        </p>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Assign / Reassign Form -->
+            <form method="POST" action="{{ route('admin.clients.client-assign-ref', $client) }}" class="pt-2 flex flex-col sm:flex-row sm:items-end gap-3">
+                @csrf
+                <div class="flex-1">
+                    <label for="ref_id" class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
+                        {{ $client->salesRep ? 'Reassign to Different Ref' : 'Assign to Ref' }}
+                    </label>
+                    <select id="ref_id" name="ref_id" class="w-full text-xs rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-3 text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">-- No Assigned Ref (Unassigned) --</option>
+                        @foreach($refs as $ref)
+                            <option value="{{ $ref->id }}" {{ $client->ref_id == $ref->id ? 'selected' : '' }}>
+                                {{ $ref->full_name }} ({{ $ref->email }}{{ $ref->phone ? ' &bull; ' . $ref->phone : '' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all">
+                        Update Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- Detailed Fields Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Business & Personal Info Card -->

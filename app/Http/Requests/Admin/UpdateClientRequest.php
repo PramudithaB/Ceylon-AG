@@ -38,6 +38,7 @@ class UpdateClientRequest extends FormRequest
             'status' => ['required', 'string', 'in:pending,approved,active,deactivated,rejected'],
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'ref_id' => ['nullable', 'exists:users,id'],
         ];
     }
 
@@ -49,5 +50,27 @@ class UpdateClientRequest extends FormRequest
         return [
             'nic.regex' => 'Please enter a valid Sri Lankan NIC number (e.g. 912345678V or 199123456789).',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+            $province = $this->input('province');
+            $district = $this->input('district');
+
+            if ($province && $district && ! \App\Support\Locations::isValidPair($province, $district)) {
+                $validator->errors()->add('district', "The selected district '{$district}' does not belong to {$province} province.");
+            }
+
+            if ($this->filled('ref_id')) {
+                $refUser = \App\Models\User::find($this->input('ref_id'));
+                if (! $refUser || $refUser->role !== \App\Models\User::ROLE_REF || $refUser->isAdmin() || $refUser->isClient()) {
+                    $validator->errors()->add('ref_id', 'The selected assigned sales representative must have the Ref role.');
+                }
+            }
+        });
     }
 }

@@ -3,14 +3,8 @@
         
         <!-- Top Centered Logo & Header -->
         <div class="flex flex-col items-center justify-center text-center mb-8">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#1E8E3E] to-[#6CC24A] p-0.5 shadow-lg shadow-emerald-700/20 mb-4 hover:scale-105 transition-transform duration-300">
-                <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center overflow-hidden">
-                    @if(file_exists(public_path('images/logo.png')))
-                        <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-11 h-11 object-contain">
-                    @else
-                        <svg class="w-8 h-8 text-[#1E8E3E]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    @endif
-                </div>
+            <div class="w-20 h-20 rounded-3xl bg-white p-2 shadow-xl shadow-emerald-700/10 mb-4 hover:scale-105 transition-transform duration-300 border border-emerald-100/80 flex items-center justify-center overflow-hidden shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG" class="w-full h-full object-contain">
             </div>
 
             <!-- Key/Lock Badge Icon -->

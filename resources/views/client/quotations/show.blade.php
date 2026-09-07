@@ -28,7 +28,7 @@
                 <!-- Header Section -->
                 <div class="flex flex-col md:flex-row justify-between items-start border-b-2 border-emerald-600 pb-6 gap-6">
                     <div class="flex items-center gap-4">
-                        <img src="{{ asset($settings->logo_path) }}" alt="Ceylon AG Logo" class="h-16 w-auto object-contain">
+                        <img src="{{ asset($settings->logo_path && file_exists(public_path($settings->logo_path)) ? $settings->logo_path : 'images/logo.png') }}" alt="Ceylon AG Logo" class="h-16 w-auto object-contain">
                         <div>
                             <h1 class="text-xl font-black text-emerald-950 uppercase tracking-tight">{{ $settings->company_name }}</h1>
                             <p class="text-xs text-slate-600 leading-relaxed">

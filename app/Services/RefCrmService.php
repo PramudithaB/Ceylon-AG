@@ -24,11 +24,10 @@ class RefCrmService
     public function getAssignedClients(User $refUser, ?string $search = null, ?string $status = null, ?string $district = null)
     {
         $query = $refUser->assignedClients()
-            ->where(function ($q) {
-                $q->where('role', User::ROLE_CLIENT)
-                  ->orWhereHas('roles', function ($rq) {
-                      $rq->where('name', 'client');
-                  });
+            ->where('role', User::ROLE_CLIENT)
+            ->whereNotIn('role', [User::ROLE_ADMIN, User::ROLE_REF])
+            ->whereDoesntHave('roles', function ($rq) {
+                $rq->whereIn('name', ['Admin', 'Super Admin', 'Ref', 'ref', 'admin']);
             });
 
         if (! empty($search)) {
@@ -64,12 +63,11 @@ class RefCrmService
      */
     public function getAllClientsForSelector(?string $search = null)
     {
-        $query = User::where(function ($q) {
-            $q->where('role', User::ROLE_CLIENT)
-              ->orWhereHas('roles', function ($rq) {
-                  $rq->where('name', 'client');
-              });
-        });
+        $query = User::where('role', User::ROLE_CLIENT)
+            ->whereNotIn('role', [User::ROLE_ADMIN, User::ROLE_REF])
+            ->whereDoesntHave('roles', function ($rq) {
+                $rq->whereIn('name', ['Admin', 'Super Admin', 'Ref', 'ref', 'admin']);
+            });
 
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {

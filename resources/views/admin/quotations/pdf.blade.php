@@ -108,16 +108,35 @@
 </head>
 <body>
 
+@php
+    $logoDataUri = '';
+    $logoPath = public_path('images/logo.png');
+    if (file_exists($logoPath)) {
+        $logoDataUri = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath));
+    }
+@endphp
+
     <!-- Header -->
     <table class="header-table" style="border-bottom: 2px solid #047857; padding-bottom: 8px;">
         <tr>
             <td style="width: 60%;">
-                <div class="company-title">{{ $settings->company_name }}</div>
-                <div style="font-size: 9px; color: #475569; margin-top: 3px;">
-                    {{ $settings->address }}<br>
-                    Phone: {{ $settings->phone }} | Email: {{ $settings->email }}<br>
-                    Website: {{ $settings->website }}
-                </div>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        @if($logoDataUri)
+                            <td style="width: 65px; vertical-align: top; padding-right: 8px;">
+                                <img src="{{ $logoDataUri }}" alt="Ceylon AG Logo" style="height: 55px; width: 55px;">
+                            </td>
+                        @endif
+                        <td style="vertical-align: top;">
+                            <div class="company-title">{{ $settings->company_name }}</div>
+                            <div style="font-size: 9px; color: #475569; margin-top: 3px;">
+                                {{ $settings->address }}<br>
+                                Phone: {{ $settings->phone }} | Email: {{ $settings->email }}<br>
+                                Website: {{ $settings->website }}
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </td>
             <td style="width: 40%;" class="text-right">
                 <div class="badge">Formal Price Quotation</div>

@@ -70,6 +70,8 @@ class RefDashboardController extends Controller
         $statusCounts = [
             'pending_requests' => StockRequest::whereIn('client_id', $clientIds)->where('status', StockRequest::STATUS_PENDING)->count(),
             'approved_requests' => StockRequest::whereIn('client_id', $clientIds)->where('status', StockRequest::STATUS_APPROVED)->count(),
+            'rejected_count' => StockRequest::whereIn('client_id', $clientIds)->where('status', StockRequest::STATUS_REJECTED)->count()
+                + Payment::whereIn('client_id', $clientIds)->where('status', Payment::STATUS_REJECTED)->count(),
             'pending_payments' => Payment::whereIn('client_id', $clientIds)->where('status', Payment::STATUS_PENDING)->count(),
             'total_sales_count' => ClientSale::whereIn('client_id', $clientIds)->count(),
         ];
