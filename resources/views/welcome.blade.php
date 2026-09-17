@@ -3,17 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ceylon AG PESTO | 100% Organic Pest Control Spray — Made in Sri Lanka</title>
-    <meta name="description" content="Ceylon AG PESTO is a 100% organic, eco-friendly pest repellent spray (200ml) manufactured in Sri Lanka for healthy, clean, and comfortable spaces.">
+    <title>Ceylon AG | Smart Agricultural Solutions</title>
+    <meta name="description" content="Ceylon AG delivers practical agricultural solutions with a focus on quality, reliability and sustainable growth for homes, businesses and modern agriculture.">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="shortcut icon" href="{{ asset('images/logo.png') }}">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Styles & Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -25,16 +25,21 @@
                 theme: {
                     extend: {
                         colors: {
-                            brand: {
-                                primary: '#1E8E3E',
-                                dark: '#0F4D22',
-                                accent: '#6CC24A',
-                                light: '#F3F9F4',
-                                text: '#1F2937'
+                            forest: {
+                                900: '#072410',
+                                800: '#0B3D1B',
+                                700: '#145A27',
+                                600: '#1B7A36',
+                                500: '#22C55E'
+                            },
+                            accent: {
+                                yellow: '#EAB308',
+                                gold: '#CA8A04',
+                                light: '#FEF08A'
                             }
                         },
                         fontFamily: {
-                            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                            sans: ['"Plus Jakarta Sans"', 'sans-serif']
                         }
                     }
                 }
@@ -47,40 +52,56 @@
 
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #FAFCF8;
-            color: #1F2937;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #FAFAF7;
+            color: #1E293B;
             overflow-x: hidden;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(229, 231, 235, 0.85);
-            box-shadow: 0 20px 40px -15px rgba(30, 142, 62, 0.07);
+        /* Subtle modern card styling */
+        .corporate-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #1E8E3E 0%, #0F4D22 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .corporate-card:hover {
+            border-color: #CBD5E1;
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px -8px rgba(11, 61, 27, 0.08);
         }
 
-        .gradient-bg-hero {
-            background: radial-gradient(circle at 85% 15%, rgba(108, 194, 74, 0.12) 0%, rgba(250, 252, 248, 0) 55%),
-                        radial-gradient(circle at 15% 65%, rgba(30, 142, 62, 0.08) 0%, rgba(250, 252, 248, 0) 50%);
-        }
-
-        .grid-pattern {
-            background-image: radial-gradient(rgba(30, 142, 62, 0.07) 1.5px, transparent 1.5px);
-            background-size: 28px 28px;
+        /* Respect prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
-<body class="antialiased selection:bg-[#1E8E3E] selection:text-white" x-data="{ mobileMenuOpen: false }">
+<body class="antialiased selection:bg-[#0B3D1B] selection:text-white" x-data="{ mobileMenuOpen: false }">
 
     @php
+        // Fetch genuine company settings
+        $company = null;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('company_settings')) {
+                $company = \App\Models\CompanySetting::first();
+            }
+        } catch (\Throwable $e) {
+            $company = null;
+        }
+        $companyName = $company->company_name ?? 'Ceylon AG';
+        $companyAddress = $company->address ?? 'I Jothipala Mawatha, Malabe';
+        $companyPhone = $company->phone ?? '076 538 0483';
+        $companyEmail = $company->email ?? 'info@ceylonagromarketing.lk';
+        $companyWebsite = $company->website ?? 'https://ceylonagromarketing.lk/';
+
+        // Fetch genuine PESTO product details without exposing internal prices or stock counts
         $pestoProduct = null;
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('products')) {
@@ -90,65 +111,69 @@
         } catch (\Throwable $e) {
             $pestoProduct = null;
         }
-        $pestoPrice = $pestoProduct ? number_format($pestoProduct->selling_price, 2) : '1,890.00';
         $pestoSku = $pestoProduct->sku ?? 'CAM-01';
         $pestoImage = ($pestoProduct && $pestoProduct->image_path && file_exists(storage_path('app/public/' . $pestoProduct->image_path)))
             ? asset('storage/' . $pestoProduct->image_path)
             : (file_exists(public_path('storage/products/k6jRXhGW5vMqWo6TnoJ7LdC4zsBljSUcjWX3oQR0.jpg'))
                 ? asset('storage/products/k6jRXhGW5vMqWo6TnoJ7LdC4zsBljSUcjWX3oQR0.jpg')
                 : asset('images/logo.png'));
+
+        $agriImage = file_exists(public_path('images/ceylon_agriculture.jpg'))
+            ? asset('images/ceylon_agriculture.jpg')
+            : asset('images/logo.png');
     @endphp
 
     <!-- ========================================================================= -->
-    <!-- MAIN NAVBAR / HEADER -->
+    <!-- 2. NAVIGATION (Sticky, Minimal & Compact) -->
     <!-- ========================================================================= -->
-    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-xl bg-white/95 border-b border-gray-100 shadow-xs">
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone-200/80 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
-            <!-- Official Ceylon AG Brand Logo -->
-            <a href="/" class="flex items-center gap-3 group" id="brand-logo-link">
-                <div class="w-12 h-12 rounded-2xl bg-white p-1 shadow-md shadow-emerald-700/15 group-hover:scale-105 transition-transform duration-300 border border-emerald-100 flex items-center justify-center overflow-hidden shrink-0">
-                    <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Official Logo" class="w-full h-full object-contain">
+            <!-- LEFT: Official Ceylon AG Logo (Not redesigned) -->
+            <a href="/" class="flex items-center gap-3.5 group">
+                <div class="w-11 h-11 rounded-xl bg-white p-1.5 border border-stone-200 shadow-sm flex items-center justify-center shrink-0 group-hover:border-[#0B3D1B]/40 transition-colors">
+                    <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Logo" class="w-full h-full object-contain">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-black tracking-tight text-gray-900 group-hover:text-[#1E8E3E] transition-colors leading-tight">Ceylon AG</span>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-[#1E8E3E]">PESTO &bull; 100% Organic</span>
+                    <span class="text-lg font-extrabold text-stone-900 tracking-tight leading-none group-hover:text-[#0B3D1B] transition-colors">
+                        Ceylon AG
+                    </span>
+                    <span class="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mt-0.5">
+                        Smart Agricultural Solutions
+                    </span>
                 </div>
             </a>
 
-            <!-- Desktop Nav Links -->
-            <nav class="hidden lg:flex items-center gap-7 text-xs font-bold text-gray-700">
-                <a href="#overview" class="hover:text-[#1E8E3E] transition-colors">Overview</a>
-                <a href="#why-choose" class="hover:text-[#1E8E3E] transition-colors">Why Choose PESTO</a>
-                <a href="#why-sell" class="hover:text-[#1E8E3E] transition-colors">Why Sell PESTO</a>
-                <a href="#benefits" class="hover:text-[#1E8E3E] transition-colors">Key Benefits</a>
-                <a href="#suitable-for" class="hover:text-[#1E8E3E] transition-colors">Who It's For</a>
-                <a href="#contact" class="hover:text-[#1E8E3E] transition-colors">Contact</a>
+            <!-- CENTER / RIGHT: Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-stone-600">
+                <a href="#home" class="hover:text-[#0B3D1B] transition-colors">Home</a>
+                <a href="#about" class="hover:text-[#0B3D1B] transition-colors">About</a>
+                <a href="#solutions" class="hover:text-[#0B3D1B] transition-colors">Solutions</a>
+                <a href="#pesto" class="hover:text-[#0B3D1B] transition-colors">PESTO</a>
+                <a href="#contact" class="hover:text-[#0B3D1B] transition-colors">Contact</a>
             </nav>
 
-            <!-- Authentication / Portal Actions -->
-            <div class="hidden sm:flex items-center gap-3">
+            <!-- RIGHT: Clean CTA & Portal Access -->
+            <div class="hidden md:flex items-center gap-4">
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-[#1E8E3E] to-[#0F4D22] hover:opacity-95 transition-all shadow-md shadow-emerald-700/20 hover:-translate-y-0.5">
-                            My Portal
-                            <svg class="w-3.5 h-3.5 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <a href="{{ url('/dashboard') }}" class="text-xs font-semibold text-stone-700 hover:text-[#0B3D1B] transition-colors">
+                            Portal Dashboard
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:text-[#1E8E3E] hover:bg-emerald-50/70 transition-all border border-transparent hover:border-emerald-200">
-                            Client & Dealer Log in
+                        <a href="{{ route('login') }}" class="text-xs font-semibold text-stone-600 hover:text-stone-900 transition-colors px-2 py-1">
+                            Login
                         </a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-black text-white bg-[#1E8E3E] hover:bg-[#0F4D22] transition-all shadow-md shadow-emerald-700/20 hover:-translate-y-0.5">
-                                Register Account
-                            </a>
-                        @endif
                     @endauth
                 @endif
+
+                <a href="#contact" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0B3D1B] hover:bg-[#145A27] transition-all shadow-sm hover:shadow">
+                    Get in Touch
+                </a>
             </div>
 
-            <!-- Mobile Hamburger Toggle -->
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none" aria-label="Toggle navigation" id="mobile-menu-btn">
+            <!-- Mobile Hamburger Button -->
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2.5 rounded-xl text-stone-700 hover:text-stone-900 hover:bg-stone-100 transition-colors" aria-label="Toggle Menu">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -156,30 +181,27 @@
             </button>
         </div>
 
-        <!-- Mobile Drawer Menu -->
-        <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="lg:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-6 space-y-2.5 shadow-xl">
-            <a href="#overview" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Overview</a>
-            <a href="#why-choose" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Why Choose PESTO</a>
-            <a href="#why-sell" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Why Sell PESTO</a>
-            <a href="#benefits" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Key Benefits</a>
-            <a href="#suitable-for" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Who It's For</a>
-            <a href="#contact" @click="mobileMenuOpen = false" class="block px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-[#1E8E3E]">Contact</a>
+        <!-- Mobile Drawer Navigation -->
+        <div x-show="mobileMenuOpen" x-transition.opacity.duration.200ms class="md:hidden bg-white border-b border-stone-200 px-6 pt-3 pb-6 space-y-3.5 shadow-lg">
+            <a href="#home" @click="mobileMenuOpen = false" class="block py-2 text-sm font-semibold text-stone-800 hover:text-[#0B3D1B]">Home</a>
+            <a href="#about" @click="mobileMenuOpen = false" class="block py-2 text-sm font-semibold text-stone-800 hover:text-[#0B3D1B]">About</a>
+            <a href="#solutions" @click="mobileMenuOpen = false" class="block py-2 text-sm font-semibold text-stone-800 hover:text-[#0B3D1B]">Solutions</a>
+            <a href="#pesto" @click="mobileMenuOpen = false" class="block py-2 text-sm font-semibold text-stone-800 hover:text-[#0B3D1B]">PESTO</a>
+            <a href="#contact" @click="mobileMenuOpen = false" class="block py-2 text-sm font-semibold text-stone-800 hover:text-[#0B3D1B]">Contact</a>
             
-            <div class="pt-4 border-t border-gray-100 flex flex-col gap-2">
+            <div class="pt-4 border-t border-stone-100 flex flex-col gap-2.5">
+                <a href="#contact" @click="mobileMenuOpen = false" class="w-full text-center py-3 rounded-xl text-xs font-bold text-white bg-[#0B3D1B] hover:bg-[#145A27] transition-colors shadow-sm">
+                    Get in Touch
+                </a>
                 @if (Route::has('login'))
                     @auth
-                        <a href="{{ url('/dashboard') }}" class="w-full text-center py-3 rounded-xl text-xs font-black text-white bg-[#1E8E3E]">
+                        <a href="{{ url('/dashboard') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 transition-colors">
                             Dashboard
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-bold text-gray-700 border border-gray-200">
-                            Client & Dealer Log in
+                        <a href="{{ route('login') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 transition-colors">
+                            Login
                         </a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="w-full text-center py-2.5 rounded-xl text-xs font-black text-white bg-[#1E8E3E]">
-                                Register Account
-                            </a>
-                        @endif
                     @endauth
                 @endif
             </div>
@@ -187,130 +209,90 @@
     </header>
 
     <!-- ========================================================================= -->
-    <!-- 1. HERO SECTION: CEYLON AG PESTO SHOWCASE -->
+    <!-- 3. HERO SECTION -->
     <!-- ========================================================================= -->
-    <section id="overview" class="relative pt-28 pb-16 md:pt-40 md:pb-24 gradient-bg-hero grid-pattern overflow-hidden">
+    <section id="home" class="relative py-16 md:py-24 lg:py-28 bg-[#FAFAF7] border-b border-stone-200/70 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-
-                <!-- Left Column: Product Focus & Marketing Narrative -->
-                <div class="lg:col-span-7 space-y-6 text-left">
-                    <!-- Trust Pill -->
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-200 text-xs font-extrabold text-[#1E8E3E]">
-                        <span class="w-2 h-2 rounded-full bg-[#1E8E3E] animate-pulse"></span>
-                        <span>Ceylon AG Official Innovation &bull; 100% Organic</span>
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+                
+                <!-- Left Column: Hero Content -->
+                <div class="lg:col-span-7 space-y-7">
+                    
+                    <!-- Small Eyebrow Label -->
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80">
+                        <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-[#0B3D1B]">
+                            CEYLON AG &bull; Smart Agricultural Solutions
+                        </span>
                     </div>
 
                     <!-- Main Headline -->
-                    <div>
-                        <span class="text-xs font-black tracking-widest text-[#1E8E3E] uppercase block mb-1">Naturally Protective &bull; Made in Sri Lanka</span>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
-                            CEYLON AG <br>
-                            <span class="gradient-text">PESTO</span>
-                        </h1>
-                        <p class="text-lg sm:text-xl font-bold text-gray-800 mt-2">
-                            100% Organic Pest Control Spray &bull; 200ML
-                        </p>
-                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-stone-900 tracking-tight leading-[1.15]">
+                        Growing Better.<br>
+                        <span class="text-[#0B3D1B]">Building Smarter.</span>
+                    </h1>
 
-                    <!-- Narrative Description -->
-                    <p class="text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl">
-                        Manufactured in Sri Lanka, <strong>Ceylon AG PESTO</strong> delivers practical, plant-friendly defense powered by organic botanical ingredients. Specially formulated for everyday pest-control needs across home gardens, indoor areas, nurseries, and agricultural plots.
+                    <!-- Supporting Text -->
+                    <p class="text-lg sm:text-xl text-stone-600 leading-relaxed max-w-2xl font-normal">
+                        Practical agricultural solutions designed to support homes, businesses and modern agriculture.
                     </p>
 
-                    <!-- Feature Highlights Matrix -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                        <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100 shadow-xs">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xs shrink-0">
-                                ✓
-                            </div>
-                            <div class="text-xs">
-                                <strong class="text-gray-900 block font-extrabold">100% Organic Formula</strong>
-                                <span class="text-gray-500">Pure plant-derived protection</span>
-                            </div>
-                        </div>
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-wrap items-center gap-4 pt-2">
+                        <a href="#solutions" class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl text-sm font-bold text-white bg-[#0B3D1B] hover:bg-[#145A27] transition-all shadow-sm hover:shadow-md">
+                            Explore Solutions
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </a>
 
-                        <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100 shadow-xs">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xs shrink-0">
-                                🇱🇰
-                            </div>
-                            <div class="text-xs">
-                                <strong class="text-gray-900 block font-extrabold">Made in Sri Lanka</strong>
-                                <span class="text-gray-500">Manufactured for local conditions</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100 shadow-xs">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xs shrink-0">
-                                🛡️
-                            </div>
-                            <div class="text-xs">
-                                <strong class="text-gray-900 block font-extrabold">Practical Pest Control</strong>
-                                <span class="text-gray-500">Helps protect against common pests</span>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100 shadow-xs">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xs shrink-0">
-                                💧
-                            </div>
-                            <div class="text-xs">
-                                <strong class="text-gray-900 block font-extrabold">Ready-to-Use 200ML</strong>
-                                <span class="text-gray-500">Convenient precision spray bottle</span>
-                            </div>
-                        </div>
+                        <a href="#contact" class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl text-sm font-bold text-stone-700 bg-white hover:bg-stone-50 border border-stone-300 hover:border-stone-400 transition-all shadow-sm">
+                            Contact Us
+                        </a>
                     </div>
 
-                    <!-- Clean Retail Price & Actions (NO Stock Quantities or Internal Pricing) -->
-                    <div class="pt-4 border-t border-gray-200/80 flex flex-col sm:flex-row sm:items-center gap-5">
-                        <div class="pr-5 sm:border-r border-gray-200">
-                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 block">Retail Price</span>
-                            <span class="text-2xl sm:text-3xl font-black text-[#1E8E3E]">LKR {{ $pestoPrice }}</span>
-                            <span class="text-[11px] text-gray-500 font-medium block mt-0.5">Per 200ml bottle &bull; SKU: {{ $pestoSku }}</span>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-3">
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="px-6 py-3.5 rounded-2xl text-xs font-black text-white bg-gradient-to-r from-[#1E8E3E] to-[#0F4D22] hover:opacity-95 transition-all shadow-lg shadow-emerald-700/20 hover:-translate-y-0.5 flex items-center gap-2">
-                                    <span>Become a Dealer</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                </a>
-                            @endif
-
-                            <a href="#contact" class="px-5 py-3.5 rounded-2xl text-xs font-bold text-gray-800 bg-white hover:bg-gray-50 transition-all border border-gray-200 shadow-xs">
-                                Inquire / Contact
-                            </a>
-                        </div>
+                    <!-- Subtle Trust Note -->
+                    <div class="pt-3 flex items-center gap-6 text-xs font-medium text-stone-500">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#15803D]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Quality Formulations
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#15803D]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Eco-Conscious Focus
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#15803D]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Reliable Support
+                        </span>
                     </div>
+
                 </div>
 
-                <!-- Right Column: High-Fidelity PESTO Bottle Visual Showcase -->
-                <div class="lg:col-span-5 flex justify-center items-center">
-                    <div class="relative w-full max-w-sm sm:max-w-md">
-                        <!-- Glow Aura -->
-                        <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-green-400/10 to-transparent rounded-3xl blur-2xl -z-10 transform scale-95"></div>
+                <!-- Right Column: Agricultural Photography Visual -->
+                <div class="lg:col-span-5 relative">
+                    <div class="relative rounded-3xl overflow-hidden border border-stone-200/90 shadow-xl bg-white p-2">
+                        <div class="relative rounded-2xl overflow-hidden h-[340px] sm:h-[420px] bg-stone-100">
+                            <img src="{{ $agriImage }}" alt="Ceylon AG Sustainable Agriculture" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent"></div>
+                        </div>
 
-                        <!-- Card Presentation -->
-                        <div class="glass-card rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-xl border border-white/90">
-                            <div class="relative mx-auto rounded-2xl overflow-hidden bg-gradient-to-b from-gray-50 via-white to-emerald-50/40 p-4 border border-emerald-100 flex items-center justify-center min-h-[380px]">
-                                <img 
-                                    src="{{ $pestoImage }}" 
-                                    alt="Ceylon AG PESTO 100% Organic 200ml Spray Bottle" 
-                                    class="max-h-[360px] sm:max-h-[420px] w-auto object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-105"
-                                >
-                                <div class="absolute top-3 right-3 px-3 py-1 bg-[#1E8E3E] text-white font-black text-[10px] uppercase rounded-full tracking-wider shadow-md">
-                                    PESTO &bull; 200ML
-                                </div>
+                        <!-- Elegant Floating Visual Element -->
+                        <div class="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-200 shadow-md flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-[#0B3D1B] flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-[#0B3D1B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
                             </div>
-
-                            <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-left">
-                                <div>
-                                    <h3 class="text-sm font-black text-gray-900">Ceylon AG PESTO</h3>
-                                    <span class="text-[11px] text-gray-500 font-medium">100% Organic Pest Repellent Spray</span>
-                                </div>
-                                <span class="px-3 py-1 bg-emerald-100 text-[#1E8E3E] text-[10px] font-black uppercase rounded-full">
-                                    Made in Sri Lanka
-                                </span>
+                            <div>
+                                <h4 class="text-xs font-bold text-stone-900">Sustainable Agriculture</h4>
+                                <p class="text-[11px] text-stone-500">Built for resilient crops and clean living spaces.</p>
                             </div>
                         </div>
                     </div>
@@ -321,433 +303,498 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 2. PESTO INTRODUCTION SECTION -->
+    <!-- 4. BRAND INTRODUCTION (Concise Editorial Section) -->
     <!-- ========================================================================= -->
-    <section class="py-16 bg-white border-y border-gray-100">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-            <span class="text-xs font-black uppercase tracking-widest text-[#1E8E3E] bg-emerald-50 px-3.5 py-1.5 rounded-full inline-block">
-                Product Introduction
+    <section id="about" class="py-20 md:py-28 bg-white border-b border-stone-200/70">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+            
+            <!-- Small Label -->
+            <span class="inline-block text-xs font-bold uppercase tracking-widest text-[#15803D] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                WHO WE ARE
             </span>
-            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 tracking-tight">
-                Everyday Plant Defense, Naturally Made
+
+            <!-- Heading -->
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
+                Solutions Built for a Better Tomorrow
             </h2>
-            <p class="text-sm sm:text-base text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                <strong>Ceylon AG PESTO</strong> is designed to solve a fundamental need: keeping plants, gardens, and crop beds protected from nuisance pests without turning to harsh, unpleasant synthetic chemicals. Engineered with botanical essences, it is ready to spray immediately with no mixing, measuring, or special protective suits needed.
+
+            <!-- Short Paragraph -->
+            <p class="text-lg sm:text-xl text-stone-600 leading-relaxed font-normal max-w-3xl mx-auto">
+                Ceylon AG delivers practical agricultural solutions with a focus on quality, reliability and sustainable growth.
             </p>
+
+            <div class="w-16 h-1 bg-[#EAB308] mx-auto rounded-full mt-4"></div>
+
         </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 3. WHY CHOOSE PESTO? SECTION (CUSTOMER / USER VALUE) -->
+    <!-- 5. SOLUTIONS SECTION (3 Clean Categories Only) -->
     <!-- ========================================================================= -->
-    <section id="why-choose" class="py-16 sm:py-24 bg-[#FAFCF8]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
-                <span class="text-xs font-black uppercase tracking-widest text-[#1E8E3E] bg-emerald-100/80 px-3.5 py-1.5 rounded-full inline-block">
-                    For Homes, Farms & Businesses
+    <section id="solutions" class="py-20 md:py-28 bg-[#FAFAF7] border-b border-stone-200/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#15803D]">
+                    OUR SOLUTIONS
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-                    Why Choose PESTO?
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
+                    Practical Solutions. Real Impact.
                 </h2>
-                <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
-                    Designed for everyday life, Ceylon AG PESTO delivers reliable pest defense that you can feel comfortable using around living and working environments.
+                <p class="text-base text-stone-600">
+                    Carefully developed approaches designed to answer key agricultural and environmental demands.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <!-- Pillar 1: Effective pest control solution -->
-                <div class="p-7 rounded-3xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xl">
-                        🎯
-                    </div>
-                    <h3 class="text-lg font-black text-gray-900">Effective Pest Control Solution</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Formulated to deter common garden and agricultural pests effectively. Provides dependable protection for your valuable greenery and plants.
-                    </p>
-                </div>
-
-                <!-- Pillar 2: Convenient and easy to use -->
-                <div class="p-7 rounded-3xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xl">
-                        ⚡
-                    </div>
-                    <h3 class="text-lg font-black text-gray-900">Convenient and Easy to Use</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Supplied in a pre-mixed, ergonomic 200ml spray bottle. No dilution, measuring cups, or complicated preparations required—just shake and spray.
-                    </p>
-                </div>
-
-                <!-- Pillar 3: Suitable for everyday pest-control needs -->
-                <div class="p-7 rounded-3xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xl">
-                        📅
-                    </div>
-                    <h3 class="text-lg font-black text-gray-900">Suitable for Everyday Needs</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Ideal for regular maintenance routines in home gardens, balcony planters, potted greenery, greenhouses, and smallholding crops.
-                    </p>
-                </div>
-
-                <!-- Pillar 4: Helps maintain cleaner, comfortable spaces -->
-                <div class="p-7 rounded-3xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xl">
-                        🌿
-                    </div>
-                    <h3 class="text-lg font-black text-gray-900">Cleaner, Comfortable Spaces</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Helps maintain a pleasant and tidy environment around indoor plants, patios, and landscaping without the harsh odors of synthetic chemicals.
-                    </p>
-                </div>
-
-                <!-- Pillar 5: A practical product for homes and businesses -->
-                <div class="p-7 rounded-3xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-[#1E8E3E] flex items-center justify-center font-black text-xl">
-                        🏡
-                    </div>
-                    <h3 class="text-lg font-black text-gray-900">Practical for Homes & Businesses</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Whether caring for residential houseplants or maintaining commercial landscape beds, PESTO offers a practical, versatile solution.
-                    </p>
-                </div>
-
-                <!-- Pillar 6: 100% Organic & Locally Formulated -->
-                <div class="p-7 rounded-3xl bg-emerald-50/70 border border-emerald-200 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-12 h-12 rounded-2xl bg-[#1E8E3E] text-white flex items-center justify-center font-black text-xl">
-                        🇱🇰
-                    </div>
-                    <h3 class="text-lg font-black text-emerald-950">Formulated in Sri Lanka</h3>
-                    <p class="text-xs text-emerald-800 leading-relaxed">
-                        Engineered specifically by Ceylon AG to address local tropical climate dynamics, seasonal plant care, and everyday pest challenges.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- 4. WHY SELL PESTO? SECTION (RETAILER & DEALER VALUE) -->
-    <!-- ========================================================================= -->
-    <section id="why-sell" class="py-16 sm:py-24 bg-white border-t border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
-                <span class="text-xs font-black uppercase tracking-widest text-[#1E8E3E] bg-emerald-100/80 px-3.5 py-1.5 rounded-full inline-block">
-                    For Retailers, Dealers & Distributors
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-                    Why Sell PESTO?
-                </h2>
-                <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
-                    A valuable, high-demand addition to your store shelves. Here is why agricultural merchants, hardware retailers, and supermarkets choose to stock Ceylon AG PESTO.
-                </p>
-            </div>
-
+            <!-- 3 Main Solution Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
-                <!-- Business Point 1 -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        01
+                <!-- Card 1: Agricultural Solutions -->
+                <div class="corporate-card p-8 sm:p-9 space-y-5">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-[#0B3D1B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
                     </div>
-                    <h3 class="text-xl font-black text-gray-900">In-Demand Customer Solution</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        A useful product customers are actively looking for. Today's consumers and growers increasingly seek organic, practical pest deterrents that are simple to apply.
+                    <h3 class="text-xl font-bold text-stone-900 tracking-tight">
+                        Agricultural Solutions
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Practical crop care approaches focused on plant resilience, foliar strength, and balanced field productivity under local conditions.
                     </p>
-                </div>
-
-                <!-- Business Point 2 -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        02
-                    </div>
-                    <h3 class="text-xl font-black text-gray-900">Easy to Introduce to Customers</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Clear, straightforward value proposition. The ready-to-use 200ml format requires minimal sales explanation, making it an effortless recommendation at the counter.
-                    </p>
-                </div>
-
-                <!-- Business Point 3 -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        03
-                    </div>
-                    <h3 class="text-xl font-black text-gray-900">Wide Customer Range</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Appeals across diverse shopper segments: urban homeowners, weekend gardeners, commercial nurseries, farm managers, and institutional landscapers.
-                    </p>
-                </div>
-
-                <!-- Business Point 4 -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        04
-                    </div>
-                    <h3 class="text-xl font-black text-gray-900">Strong Everyday Use Case</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Pest control is not a one-off event. Regular plant upkeep drives steady, recurring customer visits and dependable seasonal reorders.
-                    </p>
-                </div>
-
-                <!-- Business Point 5 -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        05
-                    </div>
-                    <h3 class="text-xl font-black text-gray-900">Adds Value to Product Range</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Complements fertilizers, seeds, and gardening tools. Elevates your business's reputation as a progressive supplier of modern, organic agro solutions.
-                    </p>
-                </div>
-
-                <!-- Business Point 6: Dedicated Rep & System Support -->
-                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 hover:bg-emerald-50/20 transition-all duration-300 space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg">
-                        06
-                    </div>
-                    <h3 class="text-xl font-black text-gray-900">Supported by Ceylon AG</h3>
-                    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Backed by assigned Sales Representatives (Refs) across all districts of Sri Lanka, seamless ordering, digital quotations, and fast delivery.
-                    </p>
-                </div>
-
-            </div>
-
-            <!-- Dealer CTA Banner -->
-            <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-emerald-50/80 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
-                <div>
-                    <h4 class="text-lg font-black text-emerald-950">Interested in stocking Ceylon AG PESTO?</h4>
-                    <p class="text-xs sm:text-sm text-emerald-800 mt-1">Register a dealership account or connect with an assigned Sales Representative.</p>
-                </div>
-                <div class="flex items-center gap-3 shrink-0">
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="px-6 py-3 rounded-xl text-xs font-black text-white bg-[#1E8E3E] hover:bg-[#0F4D22] transition-all shadow-md">
-                            Register as a Dealer
+                    <div class="pt-2">
+                        <a href="#contact" class="inline-flex items-center text-xs font-bold text-[#0B3D1B] hover:text-[#145A27] transition-colors">
+                            Learn more
+                            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
                         </a>
-                    @endif
-                    <a href="#contact" class="px-5 py-3 rounded-xl text-xs font-bold text-emerald-900 bg-white hover:bg-emerald-100 transition-all border border-emerald-200">
-                        Inquire Now
-                    </a>
+                    </div>
                 </div>
+
+                <!-- Card 2: Pest Management -->
+                <div class="corporate-card p-8 sm:p-9 space-y-5">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 text-[#CA8A04] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-[#CA8A04]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 tracking-tight">
+                        Pest Management
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Botanical, eco-conscious repellency formulations designed for safe, effective pest defense in homes, gardens, and commercial spaces without harsh fumes.
+                    </p>
+                    <div class="pt-2">
+                        <a href="#pesto" class="inline-flex items-center text-xs font-bold text-[#0B3D1B] hover:text-[#145A27] transition-colors">
+                            Explore PESTO
+                            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Business Solutions -->
+                <div class="corporate-card p-8 sm:p-9 space-y-5">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-[#0B3D1B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900 tracking-tight">
+                        Business Solutions
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Dedicated merchant partnerships, assigned field representatives, and transparent quotation workflows to help retailers and distributors grow reliably.
+                    </p>
+                    <div class="pt-2">
+                        <a href="#contact" class="inline-flex items-center text-xs font-bold text-[#0B3D1B] hover:text-[#145A27] transition-colors">
+                            Partner with us
+                            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
         </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 5. KEY PRODUCT SPECIFICATIONS & APPLICATION -->
+    <!-- 6. PESTO FEATURE SECTION (Split Layout Product Showcase) -->
     <!-- ========================================================================= -->
-    <section id="benefits" class="py-16 sm:py-24 bg-[#FAFCF8] border-t border-gray-100">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12 space-y-3">
-                <span class="text-xs font-black uppercase tracking-widest text-[#1E8E3E]">Product Overview</span>
-                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Product Specifications</h2>
-                <p class="text-xs sm:text-sm text-gray-500">Official product metadata for Ceylon AG PESTO</p>
-            </div>
-
-            <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm divide-y divide-gray-100">
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Product Name</span>
-                    <strong class="font-black text-gray-900">Ceylon AG PESTO</strong>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Product Classification</span>
-                    <span class="font-bold text-gray-800">100% Organic Pest Control / Repellent Spray</span>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Net Volume</span>
-                    <span class="font-bold text-gray-800">200 ML Pre-mixed Bottle</span>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Product SKU</span>
-                    <span class="font-bold text-gray-800">{{ $pestoSku }}</span>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Country of Origin</span>
-                    <strong class="font-black text-[#1E8E3E]">Manufactured in Sri Lanka</strong>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Consumer Retail Price</span>
-                    <strong class="font-black text-[#1E8E3E] text-base">LKR {{ $pestoPrice }}</strong>
-                </div>
-                <div class="p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm">
-                    <span class="font-extrabold text-gray-500 uppercase text-[11px]">Application Method</span>
-                    <span class="font-bold text-gray-800">Direct foliar spray; shake well before each application</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================================================= -->
-    <!-- 6. SUITABLE CUSTOMER & BUSINESS TYPES -->
-    <!-- ========================================================================= -->
-    <section id="suitable-for" class="py-16 sm:py-24 bg-white border-t border-gray-100">
+    <section id="pesto" class="py-20 md:py-28 bg-white border-b border-stone-200/70">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
-                <span class="text-xs font-black uppercase tracking-widest text-[#1E8E3E] bg-emerald-50 px-3.5 py-1.5 rounded-full inline-block">
-                    Versatile Protection
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                
+                <!-- LEFT: Existing PESTO Product Visual -->
+                <div class="lg:col-span-5 flex flex-col items-center">
+                    <div class="w-full max-w-md rounded-3xl bg-[#FAFAF7] p-8 sm:p-12 border border-stone-200/90 shadow-lg flex flex-col items-center justify-center relative group">
+                        <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-emerald-100 text-[#0B3D1B] text-[11px] font-bold">
+                            SKU: {{ $pestoSku }}
+                        </div>
+                        <img src="{{ $pestoImage }}" alt="Ceylon AG PESTO Bottle" class="w-56 h-56 sm:w-72 sm:h-72 object-contain group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <span class="text-xs font-medium text-stone-400 mt-4 tracking-wide">
+                        Ceylon AG PESTO &bull; Official Solution
+                    </span>
+                </div>
+
+                <!-- RIGHT: Headline, Copy & Highlights -->
+                <div class="lg:col-span-7 space-y-6">
+                    
+                    <span class="text-xs font-bold uppercase tracking-widest text-[#15803D] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                        OUR KEY SOLUTION
+                    </span>
+
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-stone-900 tracking-tight">
+                        PESTO
+                    </h2>
+
+                    <p class="text-base sm:text-lg text-stone-600 leading-relaxed font-normal">
+                        A practical solution designed to help create cleaner, more comfortable living and working environments.
+                    </p>
+
+                    <!-- Feature Highlights (Clean Rounded Cards) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="p-5 rounded-2xl bg-[#FAFAF7] border border-stone-200 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+                                <strong class="text-sm font-bold text-stone-900">Why Choose PESTO?</strong>
+                            </div>
+                            <p class="text-xs text-stone-600 leading-relaxed">
+                                Pre-mixed, ready-to-use botanical spray safe for home gardens, indoor foliage, and commercial environments.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-[#FAFAF7] border border-stone-200 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+                                <strong class="text-sm font-bold text-stone-900">Why Sell PESTO?</strong>
+                            </div>
+                            <p class="text-xs text-stone-600 leading-relaxed">
+                                High retail customer demand for eco-safe options, straightforward merchant supply, and dependable brand backing.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div class="pt-3">
+                        <a href="#contact" class="inline-flex items-center justify-center px-7 py-3.5 rounded-xl text-sm font-bold text-white bg-[#0B3D1B] hover:bg-[#145A27] transition-all shadow-sm hover:shadow-md">
+                            Discover PESTO
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 7. WHY CEYLON AG (3 Columns) -->
+    <!-- ========================================================================= -->
+    <section class="py-20 md:py-28 bg-[#FAFAF7] border-b border-stone-200/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#15803D]">
+                    RELIABLE STANDARDS
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-                    Who Is Ceylon AG PESTO For?
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
+                    Why Ceylon AG
                 </h2>
-                <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
-                    From home gardeners to commercial retailers, PESTO is designed to fit naturally into various workflows.
+                <p class="text-base text-stone-600">
+                    Built on core principles that empower farmers, businesses, and households with confidence.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- 3 Simple Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
-                <div class="p-6 rounded-3xl bg-slate-50 border border-gray-200/70 space-y-3">
-                    <div class="text-2xl">🏡</div>
-                    <h3 class="text-base font-extrabold text-gray-900">Home Gardeners</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        For anyone nurturing indoor plants, vegetable patches, flowering beds, or urban balcony gardens.
+                <!-- Point 1: Quality -->
+                <div class="bg-white p-8 rounded-2xl border border-stone-200 space-y-3 text-center sm:text-left">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center mx-auto sm:mx-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900">
+                        Quality
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Uncompromising standards in formulation, tested for consistent field effectiveness, safety, and dependable results.
                     </p>
                 </div>
 
-                <div class="p-6 rounded-3xl bg-slate-50 border border-gray-200/70 space-y-3">
-                    <div class="text-2xl">🏬</div>
-                    <h3 class="text-base font-extrabold text-gray-900">Retailers & Hardware</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Agrochemical shops, hardware stores, plant shops, and supermarkets wanting an organic shelf-ready spray.
+                <!-- Point 2: Practical Solutions -->
+                <div class="bg-white p-8 rounded-2xl border border-stone-200 space-y-3 text-center sm:text-left">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-[#CA8A04] flex items-center justify-center mx-auto sm:mx-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900">
+                        Practical Solutions
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Engineered specifically for real-world agricultural and environmental challenges without unnecessary complexity.
                     </p>
                 </div>
 
-                <div class="p-6 rounded-3xl bg-slate-50 border border-gray-200/70 space-y-3">
-                    <div class="text-2xl">🌱</div>
-                    <h3 class="text-base font-extrabold text-gray-900">Commercial Nurseries</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Plant nurseries and landscape contractors protecting sensitive seedlings and ornamental foliage.
-                    </p>
-                </div>
-
-                <div class="p-6 rounded-3xl bg-slate-50 border border-gray-200/70 space-y-3">
-                    <div class="text-2xl">🌾</div>
-                    <h3 class="text-base font-extrabold text-gray-900">Smallholders & Farms</h3>
-                    <p class="text-xs text-gray-600 leading-relaxed">
-                        Growers seeking a convenient organic botanical deterrent for routine horticultural upkeep.
+                <!-- Point 3: Trusted Service -->
+                <div class="bg-white p-8 rounded-2xl border border-stone-200 space-y-3 text-center sm:text-left">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center mx-auto sm:mx-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-stone-900">
+                        Trusted Service
+                    </h3>
+                    <p class="text-sm text-stone-600 leading-relaxed">
+                        Dedicated merchant partnerships, assigned field representatives, and transparent support at every step of distribution.
                     </p>
                 </div>
 
             </div>
+
         </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 7. CALL TO ACTION & CONTACT SECTION -->
+    <!-- 8. BUSINESS PARTNERSHIP SECTION -->
     <!-- ========================================================================= -->
-    <section id="contact" class="py-16 sm:py-24 bg-[#0F4D22] text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-12 gap-12 items-center">
+    <section class="py-16 md:py-24 bg-white border-b border-stone-200/70">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl bg-[#0B3D1B] text-white p-10 sm:p-14 md:p-16 relative overflow-hidden shadow-xl">
                 
-                <!-- Left: Call to Action Details -->
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="w-14 h-14 rounded-2xl bg-white p-1.5 shadow-xl flex items-center justify-center overflow-hidden">
-                        <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Logo" class="w-full h-full object-contain">
+                <!-- Subtle decorative background accent -->
+                <div class="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-emerald-800/30 blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-16 -bottom-16 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
+
+                <div class="relative max-w-3xl space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#FEF08A] text-xs font-bold uppercase tracking-wider">
+                        Commercial &amp; Retail Collaboration
                     </div>
-                    
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-                        Connect with Ceylon AG
+
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Let's Grow Together
                     </h2>
-                    
-                    <p class="text-sm sm:text-base text-emerald-100/90 leading-relaxed max-w-xl">
-                        Whether you are a retail store owner interested in distributing Ceylon AG PESTO or a customer seeking further product details, our team is ready to assist you.
+
+                    <p class="text-base sm:text-lg text-emerald-100/90 leading-relaxed max-w-2xl font-normal">
+                        Looking for reliable agricultural solutions for your business? Let's build a better solution together.
                     </p>
 
-                    <div class="pt-2 flex flex-wrap items-center gap-4">
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="px-8 py-3.5 rounded-2xl text-xs font-black text-[#0F4D22] bg-white hover:bg-emerald-50 transition-all shadow-lg hover:-translate-y-0.5">
-                                Register Dealer Account
-                            </a>
-                        @endif
-
-                        <a href="{{ route('login') }}" class="px-8 py-3.5 rounded-2xl text-xs font-bold text-white bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all border border-white/20">
-                            Dealer Portal Login
+                    <div class="pt-2">
+                        <a href="#contact" class="inline-flex items-center justify-center px-8 py-4 rounded-xl text-sm font-bold text-[#0B3D1B] bg-white hover:bg-emerald-50 transition-all shadow-md">
+                            Contact Ceylon AG
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
                         </a>
                     </div>
                 </div>
 
-                <!-- Right: Contact Information Card -->
-                <div class="lg:col-span-5">
-                    <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/15 space-y-6">
-                        <h3 class="text-lg font-black text-white">Official Company Contact</h3>
-                        
-                        <div class="space-y-4 text-xs sm:text-sm text-emerald-100">
-                            <div class="flex items-start gap-3">
-                                <span class="text-base">📍</span>
-                                <div>
-                                    <strong class="text-white block font-extrabold">Corporate Address</strong>
-                                    <span>No. 123, Agribusiness Zone, Colombo, Sri Lanka</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start gap-3">
-                                <span class="text-base">📞</span>
-                                <div>
-                                    <strong class="text-white block font-extrabold">Telephone Inquiries</strong>
-                                    <span>+94 11 234 5678</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start gap-3">
-                                <span class="text-base">✉️</span>
-                                <div>
-                                    <strong class="text-white block font-extrabold">Email Support</strong>
-                                    <span>info@ceylonag.com</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start gap-3">
-                                <span class="text-base">🌐</span>
-                                <div>
-                                    <strong class="text-white block font-extrabold">Official Website</strong>
-                                    <span>www.ceylonag.com</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="pt-2 text-[11px] text-emerald-200 border-t border-white/10">
-                            Serving retail and commercial agricultural partners across all 9 provinces of Sri Lanka.
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 8. FOOTER WITH OFFICIAL LOGO -->
+    <!-- 9. CONTACT SECTION (Real Company Details Only) -->
     <!-- ========================================================================= -->
-    <footer class="bg-gray-950 text-gray-400 py-12 border-t border-gray-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+    <section id="contact" class="py-20 md:py-28 bg-[#FAFAF7] border-b border-stone-200/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-[#15803D]">
+                    GET IN TOUCH
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
+                    Contact Ceylon AG
+                </h2>
+                <p class="text-base text-stone-600">
+                    Reach out for inquiries, product distribution, and agricultural consultation.
+                </p>
+            </div>
+
+            <!-- Contact Information Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 
-                <!-- Official Logo & Brand Info -->
-                <div class="flex items-center gap-3.5">
-                    <div class="w-11 h-11 rounded-2xl bg-white p-1 shadow-md flex items-center justify-center overflow-hidden shrink-0">
-                        <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Official Logo" class="w-full h-full object-contain">
+                <!-- Company Name / Address -->
+                <div class="bg-white p-7 rounded-2xl border border-stone-200 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
                     </div>
+                    <h4 class="text-sm font-bold text-stone-900">Address</h4>
+                    <p class="text-xs text-stone-600 leading-relaxed font-medium">
+                        {{ $companyAddress }}
+                    </p>
+                </div>
+
+                <!-- Phone -->
+                <div class="bg-white p-7 rounded-2xl border border-stone-200 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-stone-900">Direct Phone</h4>
+                    <p class="text-xs font-medium">
+                        <a href="tel:{{ $companyPhone }}" class="text-stone-700 hover:text-[#0B3D1B] transition-colors">
+                            {{ $companyPhone }}
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Email -->
+                <div class="bg-white p-7 rounded-2xl border border-stone-200 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-stone-900">Official Email</h4>
+                    <p class="text-xs font-medium">
+                        <a href="mailto:{{ $companyEmail }}" class="text-stone-700 hover:text-[#0B3D1B] transition-colors break-all">
+                            {{ $companyEmail }}
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Website -->
+                <div class="bg-white p-7 rounded-2xl border border-stone-200 space-y-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-[#0B3D1B] flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-stone-900">Official Website</h4>
+                    <p class="text-xs font-medium">
+                        <a href="{{ $companyWebsite }}" target="_blank" rel="noopener noreferrer" class="text-stone-700 hover:text-[#0B3D1B] transition-colors break-all">
+                            {{ $companyWebsite }}
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Direct Contact Form Card -->
+            <div class="max-w-3xl mx-auto bg-white p-8 sm:p-10 rounded-3xl border border-stone-200 shadow-sm" x-data="{
+                name: '',
+                inquiryType: 'General Inquiry',
+                message: '',
+                sendInquiry() {
+                    const subject = encodeURIComponent(`${this.inquiryType} from ${this.name || 'Ceylon AG Visitor'}`);
+                    const body = encodeURIComponent(`Name: ${this.name}\nInquiry Type: ${this.inquiryType}\n\nMessage:\n${this.message}`);
+                    window.location.href = `mailto:{{ $companyEmail }}?subject=${subject}&body=${body}`;
+                }
+            }">
+                <h3 class="text-xl font-bold text-stone-900 mb-2">Send an Inquiry</h3>
+                <p class="text-xs text-stone-500 mb-6">Our agricultural and distribution specialists will review your message promptly.</p>
+
+                <form @submit.prevent="sendInquiry" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Your Name</label>
+                            <input type="text" x-model="name" required placeholder="Full Name" class="w-full text-xs rounded-xl border-stone-300 focus:border-[#0B3D1B] focus:ring-[#0B3D1B] py-2.5 px-3.5">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Inquiry Type</label>
+                            <select x-model="inquiryType" class="w-full text-xs rounded-xl border-stone-300 focus:border-[#0B3D1B] focus:ring-[#0B3D1B] py-2.5 px-3.5">
+                                <option value="General Inquiry">General Inquiry</option>
+                                <option value="PESTO Product Inquiry">PESTO Product Inquiry</option>
+                                <option value="Merchant Partnership">Merchant Partnership</option>
+                                <option value="Agricultural Consultation">Agricultural Consultation</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div>
-                        <span class="text-base font-black text-white block leading-tight">Ceylon AG</span>
-                        <span class="text-[11px] text-gray-400 font-medium">Ceylon AG PESTO &bull; 100% Organic Pest Control &bull; Colombo, Sri Lanka</span>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Your Message</label>
+                        <textarea x-model="message" required rows="4" placeholder="How can Ceylon AG assist your home, business, or farm?" class="w-full text-xs rounded-xl border-stone-300 focus:border-[#0B3D1B] focus:ring-[#0B3D1B] py-2.5 px-3.5"></textarea>
+                    </div>
+
+                    <button type="submit" class="inline-flex items-center justify-center px-6 py-3 rounded-xl text-xs font-bold text-white bg-[#0B3D1B] hover:bg-[#145A27] transition-colors shadow-sm">
+                        Submit Inquiry
+                        <svg class="w-3.5 h-3.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 10. FOOTER (Minimal, Professional Corporate Footer) -->
+    <!-- ========================================================================= -->
+    <footer class="bg-white text-stone-600 py-14 border-t border-stone-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+                
+                <!-- Left: Logo & Company Description -->
+                <div class="md:col-span-5 space-y-4">
+                    <a href="/" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white p-1.5 border border-stone-200 shadow-sm flex items-center justify-center shrink-0">
+                            <img src="{{ asset('images/logo.png') }}" alt="Ceylon AG Logo" class="w-full h-full object-contain">
+                        </div>
+                        <span class="text-lg font-extrabold text-stone-900 tracking-tight">
+                            Ceylon AG
+                        </span>
+                    </a>
+                    <p class="text-xs text-stone-500 leading-relaxed max-w-sm">
+                        Practical agricultural solutions designed to support homes, businesses and modern agriculture across Sri Lanka.
+                    </p>
+                </div>
+
+                <!-- Center: Navigation Links -->
+                <div class="md:col-span-3 space-y-3">
+                    <h5 class="text-xs font-bold text-stone-900 uppercase tracking-wider">Navigation</h5>
+                    <ul class="space-y-2 text-xs font-medium text-stone-600">
+                        <li><a href="#home" class="hover:text-[#0B3D1B] transition-colors">Home</a></li>
+                        <li><a href="#about" class="hover:text-[#0B3D1B] transition-colors">About Us</a></li>
+                        <li><a href="#solutions" class="hover:text-[#0B3D1B] transition-colors">Solutions</a></li>
+                        <li><a href="#pesto" class="hover:text-[#0B3D1B] transition-colors">PESTO Showcase</a></li>
+                        <li><a href="#contact" class="hover:text-[#0B3D1B] transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Right: Existing Contact Information -->
+                <div class="md:col-span-4 space-y-3">
+                    <h5 class="text-xs font-bold text-stone-900 uppercase tracking-wider">Contact Information</h5>
+                    <div class="space-y-1.5 text-xs text-stone-500">
+                        <p class="font-semibold text-stone-800">{{ $companyName }}</p>
+                        <p>{{ $companyAddress }}</p>
+                        <p>Phone: <a href="tel:{{ $companyPhone }}" class="text-stone-700 hover:text-[#0B3D1B] transition-colors">{{ $companyPhone }}</a></p>
+                        <p>Email: <a href="mailto:{{ $companyEmail }}" class="text-stone-700 hover:text-[#0B3D1B] transition-colors">{{ $companyEmail }}</a></p>
+                        <p>Website: <a href="{{ $companyWebsite }}" target="_blank" rel="noopener noreferrer" class="text-stone-700 hover:text-[#0B3D1B] transition-colors">{{ $companyWebsite }}</a></p>
                     </div>
                 </div>
 
-                <!-- Footer Links -->
-                <div class="flex flex-wrap items-center gap-6 text-xs font-bold text-gray-400">
-                    <a href="#overview" class="hover:text-white transition-colors">Overview</a>
-                    <a href="#why-choose" class="hover:text-white transition-colors">Why PESTO</a>
-                    <a href="#why-sell" class="hover:text-white transition-colors">Why Sell</a>
-                    <a href="#benefits" class="hover:text-white transition-colors">Specs</a>
-                    <a href="#contact" class="hover:text-white transition-colors">Contact</a>
-                    <a href="{{ route('login') }}" class="hover:text-white transition-colors">Portal Login</a>
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="pt-8 border-t border-stone-200 text-xs text-stone-500 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <div>
+                    &copy; {{ date('Y') }} Ceylon AG. All rights reserved.
+                </div>
+                <div class="text-stone-400">
+                    Smart Agricultural Solutions
                 </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-gray-900 text-center text-xs text-gray-500 font-medium">
-                &copy; {{ date('Y') }} Ceylon Agro Marketing (Pvt) Ltd. All rights reserved. Ceylon AG and PESTO are trademarks of Ceylon AG in Sri Lanka.
-            </div>
         </div>
     </footer>
 

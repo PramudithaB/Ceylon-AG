@@ -15,11 +15,11 @@ class CompanySettingSeeder extends Seeder
         CompanySetting::firstOrCreate(
             ['id' => 1],
             [
-                'company_name' => 'Ceylon Agro Marketing (Pvt) Ltd.',
-                'address' => 'No. 123, Agribusiness Zone, Colombo, Sri Lanka',
-                'phone' => '+94 11 234 5678',
-                'email' => 'info@ceylonag.com',
-                'website' => 'www.ceylonag.com',
+                'company_name' => 'Ceylon AG',
+                'address' => 'I Jothipala Mawatha, Malabe',
+                'phone' => '076 538 0483',
+                'email' => 'info@ceylonagromarketing.lk',
+                'website' => 'https://ceylonagromarketing.lk/',
                 'logo_path' => 'images/logo.png',
                 'bank_name' => 'Bank of Ceylon',
                 'branch' => 'Corporate Branch, Colombo',

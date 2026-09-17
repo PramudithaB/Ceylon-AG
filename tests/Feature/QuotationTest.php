@@ -137,4 +137,83 @@ class QuotationTest extends TestCase
         $forbiddenResponse = $this->actingAs($this->client)->get(route('admin.quotations.create'));
         $forbiddenResponse->assertStatus(403);
     }
+
+    public function test_quotation_displays_updated_company_details_and_signatures_without_personal_names()
+    {
+        $quotation = Quotation::create([
+            'quotation_number' => 'QTN-2026-000099',
+            'client_id' => $this->client->id,
+            'created_by' => $this->admin->id,
+            'customer_name' => 'Samantha Fernando',
+            'quotation_date' => date('Y-m-d'),
+            'expiry_date' => date('Y-m-d', strtotime('+30 days')),
+            'status' => 'sent',
+            'subtotal' => 1000.00,
+            'grand_total' => 1000.00,
+            'prepared_by' => 'Pramuditha Bandara', // Simulated old personal name in DB
+            'approved_by' => 'Managing Director',
+        ]);
+
+        // 1. Check Admin Show View
+        $response = $this->actingAs($this->admin)->get(route('admin.quotations.show', $quotation->id));
+        $response->assertStatus(200);
+        $response->assertSee('Ceylon AG');
+        $response->assertSee('I Jothipala Mawatha, Malabe');
+        $response->assertSee('076 538 0483');
+        $response->assertSee('info@ceylonagromarketing.lk');
+        $response->assertSee('https://ceylonagromarketing.lk/');
+        $response->assertSee('Prepared By');
+        $response->assertSee('Approved By');
+        $response->assertSee('Managing Director');
+        $response->assertSee('Company Seal');
+        $response->assertSee('Authorized Signature');
+        $response->assertDontSee('Pramuditha Bandara');
+
+        // 2. Check Print View
+        $printResponse = $this->actingAs($this->admin)->get(route('admin.quotations.print', $quotation->id));
+        $printResponse->assertStatus(200);
+        $printResponse->assertSee('Ceylon AG');
+        $printResponse->assertSee('I Jothipala Mawatha, Malabe');
+        $printResponse->assertSee('076 538 0483');
+        $printResponse->assertSee('info@ceylonagromarketing.lk');
+        $printResponse->assertSee('https://ceylonagromarketing.lk/');
+        $printResponse->assertSee('Prepared By');
+        $printResponse->assertSee('Approved By');
+        $printResponse->assertSee('Managing Director');
+        $printResponse->assertSee('Company Seal');
+        $printResponse->assertSee('Authorized Signature');
+        $printResponse->assertDontSee('Pramuditha Bandara');
+
+        // 3. Check Client View
+        $clientResponse = $this->actingAs($this->client)->get(route('client.quotations.show', $quotation->id));
+        $clientResponse->assertStatus(200);
+        $clientResponse->assertSee('Ceylon AG');
+        $clientResponse->assertSee('I Jothipala Mawatha, Malabe');
+        $clientResponse->assertSee('076 538 0483');
+        $clientResponse->assertSee('info@ceylonagromarketing.lk');
+        $clientResponse->assertSee('https://ceylonagromarketing.lk/');
+        $clientResponse->assertSee('Prepared By');
+        $clientResponse->assertSee('Approved By');
+        $clientResponse->assertSee('Managing Director');
+        $clientResponse->assertSee('Company Seal');
+        $clientResponse->assertSee('Authorized Signature');
+        $clientResponse->assertDontSee('Pramuditha Bandara');
+
+        // 4. Check PDF Rendered HTML
+        $settings = CompanySetting::getSettings();
+        $pdfHtml = view('admin.quotations.pdf', compact('quotation', 'settings'))->render();
+        $this->assertStringContainsString('Ceylon AG', $pdfHtml);
+        $this->assertStringContainsString('I Jothipala Mawatha, Malabe', $pdfHtml);
+        $this->assertStringContainsString('076 538 0483', $pdfHtml);
+        $this->assertStringContainsString('info@ceylonagromarketing.lk', $pdfHtml);
+        $this->assertStringContainsString('https://ceylonagromarketing.lk/', $pdfHtml);
+        $this->assertStringContainsString('Prepared By', $pdfHtml);
+        $this->assertStringContainsString('Approved By', $pdfHtml);
+        $this->assertStringContainsString('Managing Director', $pdfHtml);
+        $this->assertStringContainsString('Company Seal', $pdfHtml);
+        $this->assertStringContainsString('Authorized Signature', $pdfHtml);
+        $this->assertStringNotContainsString('Pramuditha Bandara', $pdfHtml);
+        $this->assertStringNotContainsString('Agribusiness', $pdfHtml);
+        $this->assertStringNotContainsString('+94 11 234 5678', $pdfHtml);
+    }
 }

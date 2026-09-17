@@ -205,7 +205,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="prepared_by" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Prepared By</label>
-                                <input type="text" id="prepared_by" name="prepared_by" value="{{ old('prepared_by', auth()->user()->name) }}" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none">
+                                <input type="text" id="prepared_by" name="prepared_by" value="{{ old('prepared_by') }}" placeholder="Optional: Prepared By" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:border-emerald-500 focus:outline-none">
                             </div>
                             <div>
                                 <label for="approved_by" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Approved By</label>

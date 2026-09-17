@@ -30,11 +30,11 @@
                     <div class="flex items-center gap-4">
                         <img src="{{ asset($settings->logo_path && file_exists(public_path($settings->logo_path)) ? $settings->logo_path : 'images/logo.png') }}" alt="Ceylon AG Logo" class="h-16 w-auto object-contain">
                         <div>
-                            <h1 class="text-xl font-black text-emerald-950 uppercase tracking-tight">{{ $settings->company_name }}</h1>
+                            <h1 class="text-xl font-black text-emerald-950 uppercase tracking-tight">Ceylon AG</h1>
                             <p class="text-xs text-slate-600 leading-relaxed">
-                                {{ $settings->address }}<br>
-                                Phone: {{ $settings->phone }} &bull; Email: {{ $settings->email }}<br>
-                                Website: {{ $settings->website }}
+                                {{ $settings->address ?? 'I Jothipala Mawatha, Malabe' }}<br>
+                                Phone: {{ $settings->phone ?? '076 538 0483' }} &bull; Email: {{ $settings->email ?? 'info@ceylonagromarketing.lk' }}<br>
+                                Website: {{ $settings->website ?? 'https://ceylonagromarketing.lk/' }}
                             </p>
                         </div>
                     </div>
@@ -160,6 +160,30 @@
                             @endif
                         </div>
                     @endif
+                </div>
+
+                <!-- Signatures Section -->
+                <div class="grid grid-cols-3 gap-6 text-center text-xs border-t-2 border-slate-200 pt-10 mt-8">
+                    <div class="flex flex-col justify-end">
+                        <div class="h-14"></div>
+                        <div class="border-b border-slate-300 mb-2"></div>
+                        <div class="text-[11px] font-bold text-slate-900 uppercase">Prepared By</div>
+                    </div>
+
+                    <div class="flex flex-col justify-end">
+                        <div class="h-14"></div>
+                        <div class="border-b border-slate-300 mb-2"></div>
+                        <div class="text-[11px] font-bold text-slate-900 uppercase">Approved By</div>
+                        <div class="text-[10px] font-bold text-slate-600">Managing Director</div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-end">
+                        <div class="w-20 h-20 border-2 border-dashed border-emerald-500/40 rounded-full flex items-center justify-center text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-2">
+                            Company Seal
+                        </div>
+                        <div class="w-full border-b border-slate-300 mb-2"></div>
+                        <div class="text-[11px] font-bold text-slate-900 uppercase">Authorized Signature</div>
+                    </div>
                 </div>
             </div>
         </div>

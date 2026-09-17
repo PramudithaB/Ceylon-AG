@@ -257,7 +257,7 @@ class RefNewWorkflowAndPestoHomeTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Ceylon AG PESTO');
         $response->assertSee('CAM-01');
-        $response->assertSee('1,890.00');
+        $response->assertDontSee('1,890.00'); // retail prices must NOT be displayed on corporate homepage
         $response->assertSee('Why Choose PESTO?');
         $response->assertSee('Why Sell PESTO?');
         $response->assertSee('images/logo.png');
